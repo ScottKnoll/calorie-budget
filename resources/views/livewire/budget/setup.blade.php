@@ -11,15 +11,18 @@
     <form wire:submit="save" class="space-y-6">
         <flux:field>
             <flux:label>Maintenance Calories (TDEE)</flux:label>
-            <flux:description>Your total daily energy expenditure — the calories needed to maintain your current weight.</flux:description>
-            <flux:input wire:model="tdee" type="number" min="500" max="9999" required />
+            <flux:description>
+                The calories your body burns each day at your current activity level. Not sure?
+                <flux:link href="https://tdeecalculator.net" target="_blank">Calculate it here.</flux:link>
+            </flux:description>
+            <flux:input wire:model.blur="tdee" type="number" min="500" max="9999" required />
             <flux:error name="tdee" />
         </flux:field>
 
         <flux:field>
             <flux:label>Goal</flux:label>
-            <flux:description>The direction you're currently working towards.</flux:description>
-            <flux:select wire:model="goal">
+            <flux:description>Your daily target will be suggested automatically based on this.</flux:description>
+            <flux:select wire:model.live="goal">
                 @foreach ($this->goalOptions() as $value => $label)
                     <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                 @endforeach
@@ -29,7 +32,17 @@
 
         <flux:field>
             <flux:label>Daily Calorie Target</flux:label>
-            <flux:description>The number of calories you aim to eat each day. You control this — it doesn't have to match your TDEE exactly.</flux:description>
+            <flux:description>
+                Auto-suggested based on your TDEE and goal
+                @if ($goal === 'cut')
+                    (TDEE &minus; 20%).
+                @elseif ($goal === 'bulk')
+                    (TDEE + 20%).
+                @else
+                    (same as TDEE).
+                @endif
+                Adjust freely.
+            </flux:description>
             <flux:input wire:model="daily_calorie_target" type="number" min="500" max="9999" required />
             <flux:error name="daily_calorie_target" />
         </flux:field>

@@ -4,9 +4,10 @@ use App\Enums\Goal;
 use App\Livewire\Budget\Setup;
 use App\Models\CalorieProfile;
 use App\Models\User;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Livewire\Livewire;
 
-uses(\Illuminate\Foundation\Testing\LazilyRefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 it('redirects guests away from the setup page', function () {
     $this->get(route('budget.setup'))->assertRedirect(route('login'));
@@ -61,6 +62,46 @@ it('validates that TDEE is required and within range', function () {
         ->set('tdee', 100)
         ->call('save')
         ->assertHasErrors(['tdee']);
+});
+
+it('suggests a 20% deficit when goal is set to cut', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(Setup::class)
+        ->set('tdee', 2000)
+        ->set('goal', Goal::Cut->value)
+        ->assertSet('daily_calorie_target', 1600);
+});
+
+it('suggests a 20% surplus when goal is set to bulk', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(Setup::class)
+        ->set('tdee', 2000)
+        ->set('goal', Goal::Bulk->value)
+        ->assertSet('daily_calorie_target', 2400);
+});
+
+it('suggests the same as TDEE when goal is maintain', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(Setup::class)
+        ->set('tdee', 2000)
+        ->set('goal', Goal::Maintain->value)
+        ->assertSet('daily_calorie_target', 2000);
+});
+
+it('updates the suggestion when TDEE changes', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(Setup::class)
+        ->set('goal', Goal::Cut->value)
+        ->set('tdee', 2500)
+        ->assertSet('daily_calorie_target', 2000);
 });
 
 it('mounts with existing profile values', function () {
