@@ -23,97 +23,93 @@
             </flux:callout.text>
         </flux:callout>
     @else
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-zinc-200 dark:border-zinc-700">
-                        <th class="pb-3 text-left font-medium text-zinc-500">Day</th>
-                        <th class="pb-3 text-right font-medium text-zinc-500">Target</th>
-                        <th class="pb-3 text-right font-medium text-zinc-500">Consumed</th>
-                        <th class="pb-3 text-right font-medium text-zinc-500">Over / Under</th>
-                        <th class="pb-3 text-right font-medium text-zinc-500">Running Balance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php $runningBalance = 0; @endphp
+        <flux:table>
+            <flux:table.columns>
+                <flux:table.column>Day</flux:table.column>
+                <flux:table.column class="text-right">Target</flux:table.column>
+                <flux:table.column class="text-right">Consumed</flux:table.column>
+                <flux:table.column class="text-right">Over / Under</flux:table.column>
+                <flux:table.column class="text-right">Running Balance</flux:table.column>
+            </flux:table.columns>
 
-                    @foreach ($this->days as $day)
-                        @php
-                            if ($day['over_under'] !== null) {
-                                $runningBalance += $day['over_under'];
-                            }
-                            $isToday = $day['date']->isToday();
-                        @endphp
+            <flux:table.rows>
+                @php $runningBalance = 0; @endphp
 
-                        <tr class="border-b border-zinc-100 dark:border-zinc-800 {{ $isToday ? 'bg-zinc-50 dark:bg-zinc-800/50' : '' }}">
-                            <td class="py-3 pr-4">
-                                <span class="{{ $isToday ? 'font-semibold' : '' }}">
-                                    {{ $day['date']->format('D, M j') }}
-                                </span>
-                                @if ($isToday)
-                                    <flux:badge size="sm" color="blue" class="ml-2">Today</flux:badge>
-                                @endif
-                            </td>
+                @foreach ($this->days as $day)
+                    @php
+                        if ($day['over_under'] !== null) {
+                            $runningBalance += $day['over_under'];
+                        }
+                        $isToday = $day['date']->isToday();
+                    @endphp
 
-                            <td class="py-3 pr-4 text-right text-zinc-500">
-                                {{ number_format($this->profile->daily_calorie_target) }}
-                            </td>
-
-                            <td class="py-3 pr-4 text-right">
-                                @if ($day['calories_consumed'] !== null)
-                                    {{ number_format($day['calories_consumed']) }}
-                                @else
-                                    <span class="text-zinc-400">—</span>
-                                @endif
-                            </td>
-
-                            <td class="py-3 pr-4 text-right">
-                                @if ($day['over_under'] !== null)
-                                    @if ($day['over_under'] > 0)
-                                        <span class="font-medium text-red-500">+{{ number_format($day['over_under']) }}</span>
-                                    @elseif ($day['over_under'] < 0)
-                                        <span class="font-medium text-green-600 dark:text-green-400">{{ number_format($day['over_under']) }}</span>
-                                    @else
-                                        <span class="text-zinc-400">0</span>
-                                    @endif
-                                @else
-                                    <span class="text-zinc-400">—</span>
-                                @endif
-                            </td>
-
-                            <td class="py-3 text-right">
-                                @if ($day['over_under'] !== null)
-                                    @if ($runningBalance > 0)
-                                        <span class="font-medium text-red-500">+{{ number_format($runningBalance) }}</span>
-                                    @elseif ($runningBalance < 0)
-                                        <span class="font-medium text-green-600 dark:text-green-400">{{ number_format($runningBalance) }}</span>
-                                    @else
-                                        <span class="text-zinc-400">0</span>
-                                    @endif
-                                @else
-                                    <span class="text-zinc-400">—</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-                <tfoot>
-                    <tr class="border-t-2 border-zinc-300 dark:border-zinc-600">
-                        <td colspan="3" class="pt-3 font-medium">Weekly Total</td>
-                        <td class="pt-3"></td>
-                        <td class="pt-3 text-right font-semibold">
-                            @if ($this->weeklyBalance > 0)
-                                <span class="text-red-500">+{{ number_format($this->weeklyBalance) }}</span>
-                            @elseif ($this->weeklyBalance < 0)
-                                <span class="text-green-600 dark:text-green-400">{{ number_format($this->weeklyBalance) }}</span>
-                            @else
-                                <span class="text-zinc-400">0</span>
+                    <flux:table.row>
+                        <flux:table.cell>
+                            <span class="{{ $isToday ? 'font-semibold' : '' }}">
+                                {{ $day['date']->format('D, M j') }}
+                            </span>
+                            @if ($isToday)
+                                <flux:badge size="sm" color="blue" inset="top bottom" class="ml-2">Today</flux:badge>
                             @endif
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+                        </flux:table.cell>
+
+                        <flux:table.cell class="text-right tabular-nums text-zinc-500">
+                            {{ number_format($this->profile->daily_calorie_target) }}
+                        </flux:table.cell>
+
+                        <flux:table.cell class="text-right tabular-nums">
+                            @if ($day['calories_consumed'] !== null)
+                                {{ number_format($day['calories_consumed']) }}
+                            @else
+                                <span class="text-zinc-400">—</span>
+                            @endif
+                        </flux:table.cell>
+
+                        <flux:table.cell class="text-right tabular-nums">
+                            @if ($day['over_under'] !== null)
+                                @if ($day['over_under'] > 0)
+                                    <span class="font-medium text-red-500">+{{ number_format($day['over_under']) }}</span>
+                                @elseif ($day['over_under'] < 0)
+                                    <span class="font-medium text-green-600 dark:text-green-400">{{ number_format($day['over_under']) }}</span>
+                                @else
+                                    <span class="text-zinc-400">0</span>
+                                @endif
+                            @else
+                                <span class="text-zinc-400">—</span>
+                            @endif
+                        </flux:table.cell>
+
+                        <flux:table.cell class="text-right tabular-nums">
+                            @if ($day['over_under'] !== null)
+                                @if ($runningBalance > 0)
+                                    <span class="font-medium text-red-500">+{{ number_format($runningBalance) }}</span>
+                                @elseif ($runningBalance < 0)
+                                    <span class="font-medium text-green-600 dark:text-green-400">{{ number_format($runningBalance) }}</span>
+                                @else
+                                    <span class="text-zinc-400">0</span>
+                                @endif
+                            @else
+                                <span class="text-zinc-400">—</span>
+                            @endif
+                        </flux:table.cell>
+                    </flux:table.row>
+                @endforeach
+
+                {{-- Weekly total row --}}
+                <flux:table.row>
+                    <flux:table.cell class="font-semibold" colspan="4">Weekly Total</flux:table.cell>
+                    <flux:table.cell class="text-right tabular-nums font-semibold">
+                        @if ($this->weeklyBalance > 0)
+                            <span class="text-red-500">+{{ number_format($this->weeklyBalance) }}</span>
+                        @elseif ($this->weeklyBalance < 0)
+                            <span class="text-green-600 dark:text-green-400">{{ number_format($this->weeklyBalance) }}</span>
+                        @else
+                            <span class="text-zinc-400">0</span>
+                        @endif
+                    </flux:table.cell>
+                </flux:table.row>
+            </flux:table.rows>
+        </flux:table>
 
         <div class="mt-6">
             <flux:link href="{{ route('budget.log') }}" wire:navigate>

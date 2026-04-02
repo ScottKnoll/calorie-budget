@@ -16,7 +16,6 @@
             </flux:callout>
         @endif
 
-        {{-- Daily status summary --}}
         @if ($this->calories_consumed !== null)
             <div class="mb-6 grid grid-cols-3 gap-4 text-center">
                 <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
@@ -52,7 +51,6 @@
             @endif
         @endif
 
-        {{-- Log form --}}
         <form wire:submit="save" class="space-y-6">
             <flux:field>
                 <flux:label>Calories Consumed</flux:label>

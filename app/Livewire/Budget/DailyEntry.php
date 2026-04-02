@@ -5,7 +5,6 @@ namespace App\Livewire\Budget;
 use App\Models\CalorieEntry;
 use App\Models\CalorieProfile;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -14,9 +13,7 @@ use Livewire\Component;
 class DailyEntry extends Component
 {
     public string $date = '';
-
     public ?int $calories_consumed = null;
-
     public string $notes = '';
 
     public function mount(): void
@@ -34,13 +31,13 @@ class DailyEntry extends Component
     #[Computed]
     public function profile(): ?CalorieProfile
     {
-        return Auth::user()->calorieProfile;
+        return auth()->user()->calorieProfile;
     }
 
     #[Computed]
     public function existingEntry(): ?CalorieEntry
     {
-        return Auth::user()->calorieEntries()
+        return auth()->user()->calorieEntries()
             ->whereDate('date', $this->date)
             ->first();
     }
@@ -72,7 +69,7 @@ class DailyEntry extends Component
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
-        Auth::user()->calorieEntries()->updateOrCreate(
+        auth()->user()->calorieEntries()->updateOrCreate(
             ['date' => $this->date],
             [
                 'calories_consumed' => $this->calories_consumed,

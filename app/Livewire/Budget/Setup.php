@@ -13,9 +13,7 @@ use Livewire\Component;
 class Setup extends Component
 {
     public int $tdee = 2000;
-
     public string $goal = 'maintain';
-
     public int $daily_calorie_target = 2000;
 
     public function mount(): void

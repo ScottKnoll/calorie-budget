@@ -6,7 +6,6 @@ use App\Models\CalorieEntry;
 use App\Models\CalorieProfile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -35,7 +34,7 @@ class WeeklySummary extends Component
     #[Computed]
     public function profile(): ?CalorieProfile
     {
-        return Auth::user()->calorieProfile;
+        return auth()->user()->calorieProfile;
     }
 
     #[Computed]
@@ -57,7 +56,7 @@ class WeeklySummary extends Component
     {
         $target = $this->profile?->daily_calorie_target;
 
-        $entries = Auth::user()->calorieEntries()
+        $entries = auth()->user()->calorieEntries()
             ->whereBetween('date', [$this->weekStart, $this->weekEnd->toDateString()])
             ->get()
             ->keyBy(fn (CalorieEntry $entry) => $entry->date->toDateString());
