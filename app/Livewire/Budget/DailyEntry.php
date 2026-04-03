@@ -4,7 +4,10 @@ namespace App\Livewire\Budget;
 
 use App\Models\CalorieEntry;
 use App\Models\CalorieProfile;
+use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -13,14 +16,60 @@ use Livewire\Component;
 class DailyEntry extends Component
 {
     public string $date = '';
+
     public ?int $calories_consumed = null;
+
     public string $notes = '';
 
-    public function mount(): void
+    public function mount(?string $date = null): void
     {
-        $this->date = Carbon::today()->toDateString();
+        try {
+            $parsed = $date ? Carbon::parse($date) : Carbon::today();
+        } catch (\Exception) {
+            $parsed = Carbon::today();
+        }
 
-        $entry = $this->existingEntry();
+        // Prevent logging future dates.
+        $this->date = $parsed->min(Carbon::today())->toDateString();
+
+        $this->loadEntry();
+    }
+
+    public function previousDay(): void
+    {
+        $this->date = Carbon::parse($this->date)->subDay()->toDateString();
+        $this->loadEntry();
+    }
+
+    public function nextDay(): void
+    {
+        $next = Carbon::parse($this->date)->addDay();
+
+        if ($next->isAfter(Carbon::today())) {
+            return;
+        }
+
+        $this->date = $next->toDateString();
+        $this->loadEntry();
+    }
+
+    #[Computed]
+    public function isToday(): bool
+    {
+        return $this->date === Carbon::today()->toDateString();
+    }
+
+    private function loadEntry(): void
+    {
+        $this->calories_consumed = null;
+        $this->notes = '';
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        $entry = $user->calorieEntries()
+            ->whereDate('date', $this->date)
+            ->first();
 
         if ($entry) {
             $this->calories_consumed = $entry->calories_consumed;
@@ -31,27 +80,110 @@ class DailyEntry extends Component
     #[Computed]
     public function profile(): ?CalorieProfile
     {
-        return auth()->user()->calorieProfile;
+        /** @var User $user */
+        $user = Auth::user();
+
+        return $user->calorieProfile;
     }
 
     #[Computed]
     public function existingEntry(): ?CalorieEntry
     {
-        return auth()->user()->calorieEntries()
+        /** @var User $user */
+        $user = Auth::user();
+
+        return $user->calorieEntries()
             ->whereDate('date', $this->date)
             ->first();
     }
 
+    /**
+     * Sum of calories for each day from the start of the week through yesterday.
+     * Days with no logged entry default to the user's daily calorie target,
+     * so the weekly bank always reflects a realistic picture.
+     */
     #[Computed]
-    public function remaining(): ?int
+    public function consumedThroughYesterday(): int
     {
-        if (! $this->profile || $this->calories_consumed === null) {
+        if (! $this->profile) {
+            return 0;
+        }
+
+        $today = Carbon::parse($this->date);
+        $weekStart = $today->copy()->startOfWeek(); // Monday
+
+        // Nothing to count if today is the first day of the week.
+        if ($today->isSameDay($weekStart)) {
+            return 0;
+        }
+
+        $yesterday = $today->copy()->subDay();
+        $daysToCount = $weekStart->diffInDays($yesterday) + 1;
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        $loggedEntries = $user->calorieEntries()
+            ->whereBetween('date', [$weekStart->toDateString(), $yesterday->toDateString()])
+            ->get()
+            ->keyBy(fn (CalorieEntry $entry) => $entry->date->toDateString());
+
+        $total = 0;
+
+        for ($i = 0; $i < $daysToCount; $i++) {
+            $dayKey = $weekStart->copy()->addDays($i)->toDateString();
+            $total += $loggedEntries->get($dayKey)?->calories_consumed
+                ?? $this->profile->daily_calorie_target;
+        }
+
+        return $total;
+    }
+
+    /**
+     * Number of days from today through the end of the week (Sunday), inclusive.
+     */
+    #[Computed]
+    public function daysRemainingThisWeek(): int
+    {
+        $today = Carbon::parse($this->date);
+
+        return $today->diffInDays($today->copy()->endOfWeek()) + 1;
+    }
+
+    /**
+     * How many calories are available today based on the weekly bank.
+     * Spreads the remaining weekly budget evenly across days left this week.
+     */
+    #[Computed]
+    public function todaysAllowance(): ?int
+    {
+        if (! $this->profile) {
             return null;
         }
 
-        return $this->profile->daily_calorie_target - $this->calories_consumed;
+        $weeklyBudget = $this->profile->daily_calorie_target * 7;
+        $remainingBudget = $weeklyBudget - $this->consumedThroughYesterday;
+
+        return (int) round($remainingBudget / $this->daysRemainingThisWeek);
     }
 
+    /**
+     * Calories still available today after what has already been logged.
+     * Positive = room left. Negative = over today's allowance.
+     */
+    #[Computed]
+    public function remainingToday(): ?int
+    {
+        if ($this->todaysAllowance === null) {
+            return null;
+        }
+
+        return $this->todaysAllowance - ($this->calories_consumed ?? 0);
+    }
+
+    /**
+     * Over/under vs the static daily target — used in the weekly summary table.
+     */
     #[Computed]
     public function overUnder(): ?int
     {
@@ -69,7 +201,10 @@ class DailyEntry extends Component
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
-        auth()->user()->calorieEntries()->updateOrCreate(
+        /** @var User $user */
+        $user = Auth::user();
+
+        $user->calorieEntries()->updateOrCreate(
             ['date' => $this->date],
             [
                 'calories_consumed' => $this->calories_consumed,
@@ -80,7 +215,7 @@ class DailyEntry extends Component
         session()->flash('status', 'saved');
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.budget.daily-entry');
     }

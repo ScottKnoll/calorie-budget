@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 
-uses(\Illuminate\Foundation\Testing\LazilyRefreshDatabase::class);
 
 it('redirects guests away from the summary page', function () {
     $this->get(route('budget.summary'))->assertRedirect(route('login'));

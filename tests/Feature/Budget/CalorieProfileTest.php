@@ -4,10 +4,7 @@ use App\Enums\Goal;
 use App\Livewire\Budget\Setup;
 use App\Models\CalorieProfile;
 use App\Models\User;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Livewire\Livewire;
-
-uses(LazilyRefreshDatabase::class);
 
 it('redirects guests away from the setup page', function () {
     $this->get(route('budget.setup'))->assertRedirect(route('login'));

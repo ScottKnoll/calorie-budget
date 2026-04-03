@@ -11,7 +11,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 
     Route::livewire('setup', Setup::class)->name('budget.setup');
-    Route::livewire('log', DailyEntry::class)->name('budget.log');
+    Route::livewire('log/{date?}', DailyEntry::class)->name('budget.log');
     Route::livewire('summary', WeeklySummary::class)->name('budget.summary');
 });
 

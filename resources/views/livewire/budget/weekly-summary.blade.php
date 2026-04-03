@@ -45,9 +45,11 @@
 
                     <flux:table.row>
                         <flux:table.cell>
-                            <span class="{{ $isToday ? 'font-semibold' : '' }}">
-                                {{ $day['date']->format('D, M j') }}
-                            </span>
+                            <flux:link
+                                href="{{ route('budget.log', ['date' => $day['date']->toDateString()]) }}"
+                                wire:navigate
+                                class="{{ $isToday ? 'font-semibold' : '' }}"
+                            >{{ $day['date']->format('D, M j') }}</flux:link>
                             @if ($isToday)
                                 <flux:badge size="sm" color="blue" inset="top bottom" class="ml-2">Today</flux:badge>
                             @endif
