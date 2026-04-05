@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 
-
 it('redirects guests away from the summary page', function () {
     $this->get(route('budget.summary'))->assertRedirect(route('login'));
 });
@@ -40,7 +39,6 @@ it('correctly computes the weekly balance from logged entries', function () {
 
     $component = Livewire::actingAs($user)->test(WeeklySummary::class);
 
-    // +200 on Monday, -200 on Tuesday = 0 net
     expect($component->instance()->weeklyBalance)->toBe(0);
 });
 

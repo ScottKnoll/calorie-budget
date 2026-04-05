@@ -13,8 +13,13 @@ use Livewire\Component;
 class Setup extends Component
 {
     public int $tdee = 2000;
+
     public string $goal = 'maintain';
+
     public int $daily_calorie_target = 2000;
+
+    /** Tracks the last auto-computed suggestion so we know if the user has manually overridden it. */
+    public int $suggestedDailyTarget = 2000;
 
     public function mount(): void
     {
@@ -25,6 +30,8 @@ class Setup extends Component
             $this->goal = $profile->goal->value;
             $this->daily_calorie_target = $profile->daily_calorie_target;
         }
+
+        $this->suggestedDailyTarget = $this->daily_calorie_target;
     }
 
     public function updatedTdee(): void
@@ -34,7 +41,7 @@ class Setup extends Component
 
     public function updatedGoal(): void
     {
-        $this->suggestDailyTarget();
+        $this->suggestDailyTarget(force: true);
     }
 
     public function save(): void
@@ -60,17 +67,23 @@ class Setup extends Component
             ->all();
     }
 
-    private function suggestDailyTarget(): void
+    private function suggestDailyTarget(bool $force = false): void
     {
         if ($this->tdee < 500) {
             return;
         }
 
-        $this->daily_calorie_target = match (Goal::tryFrom($this->goal)) {
+        $suggested = match (Goal::tryFrom($this->goal)) {
             Goal::Cut => (int) round($this->tdee * 0.80),
             Goal::Bulk => (int) round($this->tdee * 1.20),
             default => $this->tdee,
         };
+
+        if ($force || $this->daily_calorie_target === $this->suggestedDailyTarget) {
+            $this->daily_calorie_target = $suggested;
+        }
+
+        $this->suggestedDailyTarget = $suggested;
     }
 
     public function render(): View

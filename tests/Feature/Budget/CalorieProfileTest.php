@@ -101,6 +101,17 @@ it('updates the suggestion when TDEE changes', function () {
         ->assertSet('daily_calorie_target', 2000);
 });
 
+it('preserves a manually entered daily calorie target when TDEE changes', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(Setup::class)
+        ->set('goal', Goal::Cut->value)
+        ->set('daily_calorie_target', 1500)
+        ->set('tdee', 2500)
+        ->assertSet('daily_calorie_target', 1500);
+});
+
 it('mounts with existing profile values', function () {
     $user = User::factory()->create();
     $profile = CalorieProfile::factory()->for($user)->create([
