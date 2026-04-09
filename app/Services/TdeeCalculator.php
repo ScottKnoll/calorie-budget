@@ -14,7 +14,12 @@ class TdeeCalculator
      * BMR (male):   (10 × kg) + (6.25 × cm) − (5 × age) + 5
      * BMR (female): (10 × kg) + (6.25 × cm) − (5 × age) − 161
      *
-     * TDEE = BMR × activity_multiplier + exercise_bonus
+     * TDEE = BMR × activity_multiplier × exercise_multiplier
+     *
+     * Activity describes lifestyle only (no gym). Exercise describes gym/workout
+     * intensity only. When paired naturally the combined multiplier aligns with
+     * Harris-Benedict reference values (e.g. Lightly Active × Light ≈ 1.365 vs
+     * H-B 1.375, Moderately Active × Moderate ≈ 1.54 vs H-B 1.55).
      */
     public static function calculate(
         Gender $gender,
@@ -30,7 +35,7 @@ class TdeeCalculator
 
         $bmr = (10 * $kg) + (6.25 * $cm) - (5 * $age) + ($gender === Gender::Male ? 5 : -161);
 
-        $tdee = ($bmr * $activity->multiplier()) + $exercise->bonus();
+        $tdee = $bmr * $activity->multiplier() * $exercise->multiplier();
 
         return (int) round($tdee);
     }

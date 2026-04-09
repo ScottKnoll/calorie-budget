@@ -12,21 +12,25 @@ enum ExerciseFactor: string
     public function label(): string
     {
         return match ($this) {
-            ExerciseFactor::None => 'None',
-            ExerciseFactor::Light => 'Light (walking, yoga, stretching)',
-            ExerciseFactor::Moderate => 'Moderate (jogging, cycling, swimming)',
-            ExerciseFactor::Intense => 'Intense (HIIT, heavy lifting, sprinting)',
+            ExerciseFactor::None => 'None (no gym or workout sessions)',
+            ExerciseFactor::Light => 'Light (1–2 sessions/week, low intensity)',
+            ExerciseFactor::Moderate => 'Moderate (3–4 sessions/week)',
+            ExerciseFactor::Intense => 'Intense (5–7 sessions/week, high effort)',
         };
     }
 
-    /** Average additional calories burned per day from workout sessions. */
-    public function bonus(): int
+    /**
+     * Gym/workout multiplier applied on top of the activity-adjusted BMR.
+     * Combined with ActivityFactor::multiplier(), the two factors align with
+     * Harris-Benedict reference values when activity and exercise are matched.
+     */
+    public function multiplier(): float
     {
         return match ($this) {
-            ExerciseFactor::None => 0,
-            ExerciseFactor::Light => 150,
-            ExerciseFactor::Moderate => 250,
-            ExerciseFactor::Intense => 400,
+            ExerciseFactor::None => 1.00,
+            ExerciseFactor::Light => 1.05,
+            ExerciseFactor::Moderate => 1.10,
+            ExerciseFactor::Intense => 1.15,
         };
     }
 }

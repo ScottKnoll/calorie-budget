@@ -18,14 +18,14 @@ it('calculates TDEE for a sedentary male', function () {
 
 // Female: 25 yrs, 5'5" (165.1 cm), 130 lbs (58.957 kg)
 // BMR = (10 × 58.957) + (6.25 × 165.1) − (5 × 25) − 161 = 1335.445
-// TDEE (lightly active ×1.375) = 1836.24 → +150 light bonus = 1986
+// TDEE = BMR × 1.30 (lightly active) × 1.05 (light exercise) = 1823
 it('calculates TDEE for a lightly active female with light exercise', function () {
     $result = TdeeCalculator::calculate(
         Gender::Female, 25, 5, 5, 130,
         ActivityFactor::LightlyActive, ExerciseFactor::Light,
     );
 
-    expect($result)->toBe(1986);
+    expect($result)->toBe(1823);
 });
 
 it('applies the activity factor multiplier', function () {
@@ -35,11 +35,14 @@ it('applies the activity factor multiplier', function () {
     expect($veryActive)->toBeGreaterThan($sedentary);
 });
 
-it('adds the exercise factor bonus on top of TDEE', function () {
+// Sedentary (×1.2) + Intense (×1.15): BMR 1737.22 × 1.2 × 1.15 = 2397
+it('applies the exercise factor multiplier on top of TDEE', function () {
     $noExercise = TdeeCalculator::calculate(Gender::Male, 30, 5, 10, 170, ActivityFactor::Sedentary, ExerciseFactor::None);
     $intense = TdeeCalculator::calculate(Gender::Male, 30, 5, 10, 170, ActivityFactor::Sedentary, ExerciseFactor::Intense);
 
-    expect($intense)->toBe($noExercise + ExerciseFactor::Intense->bonus());
+    expect($intense)
+        ->toBeGreaterThan($noExercise)
+        ->toBe(2397);
 });
 
 it('computes a daily target with a cut deficit', function () {

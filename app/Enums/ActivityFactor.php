@@ -13,22 +13,26 @@ enum ActivityFactor: string
     public function label(): string
     {
         return match ($this) {
-            ActivityFactor::Sedentary => 'Sedentary (desk job, little or no exercise)',
-            ActivityFactor::LightlyActive => 'Lightly Active (light exercise 1–3 days/week)',
-            ActivityFactor::ModeratelyActive => 'Moderately Active (moderate exercise 3–5 days/week)',
-            ActivityFactor::VeryActive => 'Very Active (hard exercise 6–7 days/week)',
-            ActivityFactor::ExtraActive => 'Extra Active (very hard exercise + physical job)',
+            ActivityFactor::Sedentary => 'Sedentary (desk job, little movement outside gym)',
+            ActivityFactor::LightlyActive => 'Lightly Active (some walking, light daily movement)',
+            ActivityFactor::ModeratelyActive => 'Moderately Active (on your feet most of the day)',
+            ActivityFactor::VeryActive => 'Very Active (physically demanding job)',
+            ActivityFactor::ExtraActive => 'Extra Active (extremely demanding physical job)',
         };
     }
 
+    /**
+     * Lifestyle-only multiplier (excludes gym/workout activity).
+     * Combine with ExerciseFactor::multiplier() for total TDEE.
+     */
     public function multiplier(): float
     {
         return match ($this) {
-            ActivityFactor::Sedentary => 1.2,
-            ActivityFactor::LightlyActive => 1.375,
-            ActivityFactor::ModeratelyActive => 1.55,
-            ActivityFactor::VeryActive => 1.725,
-            ActivityFactor::ExtraActive => 1.9,
+            ActivityFactor::Sedentary => 1.20,
+            ActivityFactor::LightlyActive => 1.30,
+            ActivityFactor::ModeratelyActive => 1.40,
+            ActivityFactor::VeryActive => 1.55,
+            ActivityFactor::ExtraActive => 1.70,
         };
     }
 }

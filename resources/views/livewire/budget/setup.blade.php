@@ -12,8 +12,8 @@
 
     {{-- Live TDEE Preview --}}
     @if ($this->computedTdee > 0)
-        <div class="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-950/40">
-            <flux:heading size="sm" class="mb-4">Your Estimated Numbers</flux:heading>
+        <flux:card class="mb-6 bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:border-blue-800">
+            <flux:heading size="lg" class="mb-4">Your Estimated Numbers</flux:heading>
             <div class="grid grid-cols-2 gap-6 sm:grid-cols-3">
                 <div>
                     <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Maintenance (TDEE)</flux:text>
@@ -35,17 +35,17 @@
                     </div>
                 @endif
             </div>
-        </div>
+        </flux:card>
     @endif
 
     <form wire:submit="save" class="space-y-4">
 
         {{-- Personal Info --}}
-        <div class="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
-            <div class="border-b border-zinc-100 bg-zinc-50/70 px-5 py-3 dark:border-zinc-800 dark:bg-zinc-800/50">
-                <flux:heading size="sm">Personal Info</flux:heading>
+        <flux:card class="p-0 overflow-hidden">
+            <div class="border-b border-zinc-200 bg-zinc-100 px-6 py-5 dark:border-zinc-700 dark:bg-zinc-800">
+                <flux:heading size="lg">Personal Info</flux:heading>
             </div>
-            <div class="space-y-4 px-5 py-5">
+            <div class="space-y-4 p-6">
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <flux:field>
                         <flux:label>Gender</flux:label>
@@ -86,14 +86,14 @@
                     </flux:field>
                 </div>
             </div>
-        </div>
+        </flux:card>
 
         {{-- Activity --}}
-        <div class="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
-            <div class="border-b border-zinc-100 bg-zinc-50/70 px-5 py-3 dark:border-zinc-800 dark:bg-zinc-800/50">
-                <flux:heading size="sm">Activity</flux:heading>
+        <flux:card class="p-0 overflow-hidden">
+            <div class="border-b border-zinc-200 bg-zinc-100 px-6 py-5 dark:border-zinc-700 dark:bg-zinc-800">
+                <flux:heading size="lg">Activity</flux:heading>
             </div>
-            <div class="space-y-4 px-5 py-5">
+            <div class="space-y-4 p-6">
                 <flux:field>
                     <flux:label>Activity Level</flux:label>
                     <flux:description>Your typical daily activity outside of intentional exercise.</flux:description>
@@ -106,8 +106,8 @@
                 </flux:field>
 
                 <flux:field>
-                    <flux:label>Exercise Intensity</flux:label>
-                    <flux:description>The intensity of your planned workout sessions. Adds an average daily calorie bonus.</flux:description>
+                    <flux:label>Exercise Frequency</flux:label>
+                    <flux:description>The frequency of your planned workout sessions. Adds an average daily calorie bonus.</flux:description>
                     <flux:select wire:model.live="exercise_factor">
                         @foreach ($this->exerciseFactorOptions() as $value => $label)
                             <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
@@ -116,14 +116,14 @@
                     <flux:error name="exercise_factor" />
                 </flux:field>
             </div>
-        </div>
+        </flux:card>
 
         {{-- Goals & Timeline --}}
-        <div class="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
-            <div class="border-b border-zinc-100 bg-zinc-50/70 px-5 py-3 dark:border-zinc-800 dark:bg-zinc-800/50">
-                <flux:heading size="sm">Goals & Timeline</flux:heading>
+        <flux:card class="p-0 overflow-hidden">
+            <div class="border-b border-zinc-200 bg-zinc-100 px-6 py-5 dark:border-zinc-700 dark:bg-zinc-800">
+                <flux:heading size="lg">Goals & Timeline</flux:heading>
             </div>
-            <div class="space-y-4 px-5 py-5">
+            <div class="space-y-4 p-6">
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <flux:field>
                         <flux:label>Goal</flux:label>
@@ -138,7 +138,6 @@
                     @if ($goal !== 'maintain')
                         <flux:field>
                             <flux:label>{{ $goal === 'cut' ? 'Deficit' : 'Surplus' }} Percentage</flux:label>
-                            <flux:description>Default is 20%. Range: 5–50%.</flux:description>
                             <flux:input wire:model.live="calorie_deficit_pct" type="number" min="5" max="50" suffix="%" />
                             <flux:error name="calorie_deficit_pct" />
                         </flux:field>
@@ -159,14 +158,14 @@
                     </flux:field>
                 </div>
             </div>
-        </div>
+        </flux:card>
 
         {{-- Daily Calorie Target --}}
-        <div class="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
-            <div class="border-b border-zinc-100 bg-zinc-50/70 px-5 py-3 dark:border-zinc-800 dark:bg-zinc-800/50">
-                <flux:heading size="sm">Daily Calorie Target</flux:heading>
+        <flux:card class="p-0 overflow-hidden">
+            <div class="border-b border-zinc-200 bg-zinc-100 px-6 py-5 dark:border-zinc-700 dark:bg-zinc-800">
+                <flux:heading size="lg">Daily Calorie Target</flux:heading>
             </div>
-            <div class="px-5 py-5">
+            <div class="p-6">
                 <flux:field>
                     <flux:label>Daily Calorie Target</flux:label>
                     <flux:description>
@@ -184,7 +183,7 @@
                     <flux:error name="daily_calorie_target" />
                 </flux:field>
             </div>
-        </div>
+        </flux:card>
 
         <div class="flex justify-end pb-2">
             <flux:button type="submit" variant="primary">Save Settings</flux:button>
