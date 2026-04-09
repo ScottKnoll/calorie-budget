@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\ActivityFactor;
 use App\Enums\ExerciseFactor;
+use App\Enums\FormulaType;
 use App\Enums\Gender;
 use App\Enums\Goal;
 use App\Models\CalorieProfile;
@@ -42,6 +43,8 @@ class CalorieProfileFactory extends Factory
             'calorie_deficit_pct' => 20,
             'activity_factor' => $activity->value,
             'exercise_factor' => $exercise->value,
+            'formula' => FormulaType::Standard->value,
+            'body_fat_pct' => null,
             'tdee' => $tdee,
             'goal' => $goal->value,
             'daily_calorie_target' => $dailyTarget,

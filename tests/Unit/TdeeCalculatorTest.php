@@ -2,6 +2,7 @@
 
 use App\Enums\ActivityFactor;
 use App\Enums\ExerciseFactor;
+use App\Enums\FormulaType;
 use App\Enums\Gender;
 use App\Services\TdeeCalculator;
 
@@ -65,4 +66,88 @@ it('rounds the daily target to the nearest integer', function () {
 it('applies a custom deficit percentage', function () {
     expect(TdeeCalculator::dailyTarget(2000, 'cut', 10))->toBe(1800);
     expect(TdeeCalculator::dailyTarget(2000, 'cut', 30))->toBe(1400);
+});
+
+// BMR only (no activity/exercise multipliers):
+// Male, 30 yrs, 5'10", 170 lbs → BMR = 1737
+it('calculates BMR for a standard male without activity multiplier', function () {
+    $result = TdeeCalculator::bmr(Gender::Male, 30, 5, 10, 170);
+
+    expect($result)->toBe(1737);
+});
+
+// Female, 25 yrs, 5'5", 130 lbs → BMR = 1335
+it('calculates BMR for a standard female without activity multiplier', function () {
+    $result = TdeeCalculator::bmr(Gender::Female, 25, 5, 5, 130);
+
+    expect($result)->toBe(1335);
+});
+
+// Katch-McArdle BMR: 200 lbs (90.703 kg), 15% body fat → LBM = 77.097 kg → BMR = 2035
+it('calculates BMR using the lean mass formula', function () {
+    $result = TdeeCalculator::bmr(
+        Gender::Male, 0, 0, 0, 200,
+        FormulaType::LeanMass, 15,
+    );
+
+    expect($result)->toBe(2035);
+});
+
+// Days to goal: 200 lbs → 185 lbs, 500 cal/day deficit → (15 × 3500) / 500 = 105 days
+it('calculates days to goal correctly', function () {
+    expect(TdeeCalculator::daysToGoal(200, 185, 2500, 2000))->toBe(105);
+});
+
+it('returns null for days to goal when weight difference is zero', function () {
+    expect(TdeeCalculator::daysToGoal(200, 200, 2500, 2000))->toBeNull();
+});
+
+it('returns null for days to goal when there is no deficit or surplus', function () {
+    expect(TdeeCalculator::daysToGoal(200, 185, 2500, 2500))->toBeNull();
+});
+
+// Katch-McArdle (lean mass formula):
+// 200 lbs (90.703 kg), 15% body fat → LBM = 90.703 × 0.85 = 77.097 kg
+// BMR = 370 + (21.6 × 77.097) = 370 + 1665.3 = 2035
+// TDEE (sedentary ×1.2, none ×1.0) = 2035 × 1.2 = 2442
+it('calculates TDEE using the Katch-McArdle lean mass formula', function () {
+    $result = TdeeCalculator::calculate(
+        Gender::Male, 0, 0, 0, 200,
+        ActivityFactor::Sedentary, ExerciseFactor::None,
+        FormulaType::LeanMass, 15,
+    );
+
+    expect($result)->toBe(2442);
+});
+
+it('produces a higher TDEE for leaner body composition at the same weight', function () {
+    $lean = TdeeCalculator::calculate(
+        Gender::Male, 0, 0, 0, 200,
+        ActivityFactor::Sedentary, ExerciseFactor::None,
+        FormulaType::LeanMass, 10,
+    );
+
+    $moreBodyFat = TdeeCalculator::calculate(
+        Gender::Male, 0, 0, 0, 200,
+        ActivityFactor::Sedentary, ExerciseFactor::None,
+        FormulaType::LeanMass, 30,
+    );
+
+    expect($lean)->toBeGreaterThan($moreBodyFat);
+});
+
+it('ignores gender, height, and age when using the lean mass formula', function () {
+    $male = TdeeCalculator::calculate(
+        Gender::Male, 30, 5, 10, 200,
+        ActivityFactor::Sedentary, ExerciseFactor::None,
+        FormulaType::LeanMass, 15,
+    );
+
+    $female = TdeeCalculator::calculate(
+        Gender::Female, 50, 4, 8, 200,
+        ActivityFactor::Sedentary, ExerciseFactor::None,
+        FormulaType::LeanMass, 15,
+    );
+
+    expect($male)->toBe($female);
 });

@@ -2,6 +2,7 @@
 
 use App\Enums\ActivityFactor;
 use App\Enums\ExerciseFactor;
+use App\Enums\FormulaType;
 use App\Enums\Gender;
 use App\Enums\Goal;
 use App\Livewire\Budget\Setup;
@@ -240,4 +241,110 @@ it('saves all TDEE calculator fields to the profile', function () {
 
     expect($profile->start_date->toDateString())->toBe('2026-01-01');
     expect($profile->tdee)->toBeGreaterThan(0);
+});
+
+it('saves a lean mass profile and computes TDEE via Katch-McArdle', function () {
+    $user = User::factory()->create();
+
+    // 200 lbs, 15% body fat, sedentary, no exercise → TDEE = 2442
+    Livewire::actingAs($user)
+        ->test(Setup::class)
+        ->set('formula', FormulaType::LeanMass->value)
+        ->set('weight_lbs', 200)
+        ->set('body_fat_pct', 15)
+        ->set('activity_factor', ActivityFactor::Sedentary->value)
+        ->set('exercise_factor', ExerciseFactor::None->value)
+        ->set('goal', Goal::Maintain->value)
+        ->call('save');
+
+    $profile = $user->fresh()->calorieProfile;
+
+    expect($profile)
+        ->formula->toBe(FormulaType::LeanMass)
+        ->body_fat_pct->toBe(15)
+        ->weight_lbs->toBe(200)
+        ->tdee->toBe(2442)
+        ->daily_calorie_target->toBe(2442);
+});
+
+it('lean mass formula produces a higher TDEE than standard for a muscular user', function () {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)->test(Setup::class);
+
+    $component
+        ->set('formula', FormulaType::Standard->value)
+        ->set('gender', Gender::Male->value)
+        ->set('age', 35)
+        ->set('height_feet', 6)
+        ->set('height_inches', 0)
+        ->set('weight_lbs', 200)
+        ->set('activity_factor', ActivityFactor::Sedentary->value)
+        ->set('exercise_factor', ExerciseFactor::None->value);
+
+    $standardTdee = $component->get('computedTdee');
+
+    $component
+        ->set('formula', FormulaType::LeanMass->value)
+        ->set('body_fat_pct', 10);
+
+    $leanTdee = $component->get('computedTdee');
+
+    // At 10% body fat, lean mass formula should yield more calories than standard
+    expect($leanTdee)->toBeGreaterThan($standardTdee);
+});
+
+it('shows BMR in the preview when measurements are complete', function () {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)->test(Setup::class);
+    withMeasurements($component);
+
+    // Male, 30, 5'10", 170 lbs → BMR = 1737
+    expect($component->get('computedBmr'))->toBe(1737);
+});
+
+it('computes days to goal when goal weight and a cut are set', function () {
+    $user = User::factory()->create();
+
+    // TDEE = 2085 (sedentary, no exercise), 20% cut → target ≈ 1668, deficit ≈ 417/day
+    // 30 lbs to lose × 3500 / 417 = 251 days (ceil)
+    $component = Livewire::actingAs($user)->test(Setup::class);
+    withMeasurements($component)
+        ->set('goal', Goal::Cut->value)
+        ->set('goal_weight_lbs', 140);
+
+    expect($component->get('computedDaysToGoal'))->toBeGreaterThan(0);
+    expect($component->get('computedTargetDate'))->not->toBeNull();
+});
+
+it('returns null for days to goal when no goal weight is set', function () {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)->test(Setup::class);
+    withMeasurements($component)->set('goal', Goal::Cut->value);
+
+    expect($component->get('computedDaysToGoal'))->toBeNull();
+});
+
+it('returns null for days to goal on a maintain goal', function () {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)->test(Setup::class);
+    withMeasurements($component)
+        ->set('goal', Goal::Maintain->value)
+        ->set('goal_weight_lbs', 160);
+
+    expect($component->get('computedDaysToGoal'))->toBeNull();
+});
+
+it('requires body_fat_pct when lean mass formula is selected', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(Setup::class)
+        ->set('formula', FormulaType::LeanMass->value)
+        ->set('weight_lbs', 200)
+        ->call('save')
+        ->assertHasErrors(['body_fat_pct']);
 });

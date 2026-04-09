@@ -4,6 +4,7 @@ namespace App\Livewire\Budget;
 
 use App\Enums\ActivityFactor;
 use App\Enums\ExerciseFactor;
+use App\Enums\FormulaType;
 use App\Enums\Gender;
 use App\Enums\Goal;
 use App\Models\CalorieProfile;
@@ -37,6 +38,10 @@ class Setup extends Component
 
     public string $exercise_factor = 'none';
 
+    public string $formula = 'standard';
+
+    public ?int $body_fat_pct = null;
+
     public string $goal = 'maintain';
 
     public int $suggestedDailyTarget = 0;
@@ -58,6 +63,8 @@ class Setup extends Component
             $this->calorie_deficit_pct = $profile->calorie_deficit_pct;
             $this->activity_factor = $profile->activity_factor->value;
             $this->exercise_factor = $profile->exercise_factor->value;
+            $this->formula = $profile->formula->value;
+            $this->body_fat_pct = $profile->body_fat_pct;
             $this->goal = $profile->goal->value;
             $this->daily_calorie_target = $profile->daily_calorie_target;
         } else {
@@ -74,18 +81,30 @@ class Setup extends Component
     #[Computed]
     public function computedTdee(): int
     {
-        if (! $this->age || ! $this->weight_lbs || ! $this->height_feet) {
+        if (! $this->weight_lbs) {
+            return 0;
+        }
+
+        $formula = FormulaType::from($this->formula);
+
+        if ($formula === FormulaType::LeanMass && ! $this->body_fat_pct) {
+            return 0;
+        }
+
+        if ($formula === FormulaType::Standard && (! $this->age || ! $this->height_feet)) {
             return 0;
         }
 
         return TdeeCalculator::calculate(
             Gender::from($this->gender),
-            $this->age,
-            $this->height_feet,
+            $this->age ?? 0,
+            $this->height_feet ?? 0,
             $this->height_inches,
             $this->weight_lbs,
             ActivityFactor::from($this->activity_factor),
             ExerciseFactor::from($this->exercise_factor),
+            $formula,
+            $this->body_fat_pct,
         );
     }
 
@@ -95,14 +114,72 @@ class Setup extends Component
         return TdeeCalculator::dailyTarget($this->computedTdee, $this->goal, $this->calorie_deficit_pct);
     }
 
+    #[Computed]
+    public function computedBmr(): int
+    {
+        if (! $this->weight_lbs) {
+            return 0;
+        }
+
+        $formula = FormulaType::from($this->formula);
+
+        if ($formula === FormulaType::LeanMass && ! $this->body_fat_pct) {
+            return 0;
+        }
+
+        if ($formula === FormulaType::Standard && (! $this->age || ! $this->height_feet)) {
+            return 0;
+        }
+
+        return TdeeCalculator::bmr(
+            Gender::from($this->gender),
+            $this->age ?? 0,
+            $this->height_feet ?? 0,
+            $this->height_inches,
+            $this->weight_lbs,
+            $formula,
+            $this->body_fat_pct,
+        );
+    }
+
+    #[Computed]
+    public function computedDaysToGoal(): ?int
+    {
+        if (! $this->goal_weight_lbs || ! $this->weight_lbs) {
+            return null;
+        }
+
+        if (! in_array($this->goal, ['cut', 'bulk'])) {
+            return null;
+        }
+
+        return TdeeCalculator::daysToGoal(
+            $this->weight_lbs,
+            $this->goal_weight_lbs,
+            $this->computedTdee,
+            $this->daily_calorie_target,
+        );
+    }
+
+    #[Computed]
+    public function computedTargetDate(): ?string
+    {
+        if ($this->computedDaysToGoal === null) {
+            return null;
+        }
+
+        return now()->addDays($this->computedDaysToGoal)->format('M j, Y');
+    }
+
     public function updated(string $property): void
     {
         $tdeeProps = [
             'gender', 'age', 'height_feet', 'height_inches',
             'weight_lbs', 'activity_factor', 'exercise_factor',
+            'formula', 'body_fat_pct',
         ];
 
-        $targetProps = ['goal', 'calorie_deficit_pct'];
+        $targetProps = ['goal', 'calorie_deficit_pct', 'goal_weight_lbs', 'daily_calorie_target'];
 
         if (in_array($property, $tdeeProps) || in_array($property, $targetProps)) {
             $this->syncSuggestedTarget();
@@ -111,10 +188,12 @@ class Setup extends Component
 
     public function save(): void
     {
+        $isLeanMass = $this->formula === FormulaType::LeanMass->value;
+
         $validated = $this->validate([
             'gender' => ['required', new Enum(Gender::class)],
-            'age' => ['required', 'integer', 'min:1', 'max:120'],
-            'height_feet' => ['required', 'integer', 'min:1', 'max:9'],
+            'age' => [$isLeanMass ? 'nullable' : 'required', 'integer', 'min:1', 'max:120'],
+            'height_feet' => [$isLeanMass ? 'nullable' : 'required', 'integer', 'min:1', 'max:9'],
             'height_inches' => ['required', 'integer', 'min:0', 'max:11'],
             'weight_lbs' => ['required', 'integer', 'min:50', 'max:1500'],
             'goal_weight_lbs' => ['nullable', 'integer', 'min:50', 'max:1500'],
@@ -122,6 +201,8 @@ class Setup extends Component
             'calorie_deficit_pct' => ['required', 'integer', 'min:5', 'max:50'],
             'activity_factor' => ['required', new Enum(ActivityFactor::class)],
             'exercise_factor' => ['required', new Enum(ExerciseFactor::class)],
+            'formula' => ['required', new Enum(FormulaType::class)],
+            'body_fat_pct' => [$isLeanMass ? 'required' : 'nullable', 'integer', 'min:1', 'max:70'],
             'goal' => ['required', new Enum(Goal::class)],
             'daily_calorie_target' => ['required', 'integer', 'min:500', 'max:9999'],
         ]);
@@ -134,6 +215,13 @@ class Setup extends Component
         );
 
         session()->flash('status', 'saved');
+    }
+
+    public function formulaOptions(): array
+    {
+        return collect(FormulaType::cases())
+            ->mapWithKeys(fn (FormulaType $f) => [$f->value => $f->label()])
+            ->all();
     }
 
     public function genderOptions(): array

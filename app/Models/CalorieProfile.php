@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ActivityFactor;
 use App\Enums\ExerciseFactor;
+use App\Enums\FormulaType;
 use App\Enums\Gender;
 use App\Enums\Goal;
 use Database\Factories\CalorieProfileFactory;
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'calorie_deficit_pct',
     'activity_factor',
     'exercise_factor',
+    'formula',
+    'body_fat_pct',
     'tdee',
     'goal',
     'daily_calorie_target',
@@ -39,6 +42,7 @@ class CalorieProfile extends Model
             'gender' => Gender::class,
             'activity_factor' => ActivityFactor::class,
             'exercise_factor' => ExerciseFactor::class,
+            'formula' => FormulaType::class,
             'goal' => Goal::class,
             'start_date' => 'date',
             'age' => 'integer',
@@ -47,6 +51,7 @@ class CalorieProfile extends Model
             'weight_lbs' => 'integer',
             'goal_weight_lbs' => 'integer',
             'calorie_deficit_pct' => 'integer',
+            'body_fat_pct' => 'integer',
             'tdee' => 'integer',
             'daily_calorie_target' => 'integer',
         ];
