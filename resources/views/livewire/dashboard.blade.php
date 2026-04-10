@@ -1,0 +1,151 @@
+<div>
+    <flux:heading size="xl" class="mb-1">Welcome back, {{ auth()->user()->name }}.</flux:heading>
+    <flux:text>Here's a quick look at where you stand today.</flux:text>
+
+    <div class="mt-12 grid gap-4 sm:grid-cols-2">
+
+        {{-- Daily Log --}}
+        <a href="{{ route('budget.log') }}" wire:navigate
+            class="group flex flex-col rounded-xl border border-zinc-200 p-6 transition hover:border-zinc-400 hover:shadow-sm dark:border-zinc-700 dark:hover:border-zinc-500">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 transition group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-700">
+                        <flux:icon.pencil-square class="size-5 text-zinc-600 dark:text-zinc-400" />
+                    </div>
+                    <flux:heading>Daily Log</flux:heading>
+                </div>
+                <flux:icon.chevron-right class="size-4 text-zinc-400 transition group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />
+            </div>
+
+            @if (! $this->profile)
+                <flux:text class="text-zinc-400">Complete your calorie setup to get started.</flux:text>
+            @elseif ($this->remainingToday === null)
+                <flux:text class="text-zinc-400">Not yet logged today.</flux:text>
+                <p class="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+                    Target: <span class="font-semibold text-zinc-700 dark:text-zinc-200">{{ number_format($this->profile->daily_calorie_target) }} cal</span>
+                </p>
+            @else
+                <div class="flex-1">
+                    <p class="text-3xl font-bold tracking-tight {{ $this->remainingToday >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500' }}">
+                        {{ $this->remainingToday >= 0 ? '' : '−' }}{{ number_format(abs($this->remainingToday)) }}
+                    </p>
+                    <flux:text size="sm" class="mt-0.5 text-zinc-400">cal remaining today</flux:text>
+                </div>
+                <div class="mt-4 flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+                    <span>{{ number_format($this->todaysEntry->calories_consumed) }} consumed</span>
+                    <flux:separator vertical />
+                    <span>{{ number_format($this->profile->daily_calorie_target) }} target</span>
+                </div>
+            @endif
+        </a>
+
+        {{-- Weekly Summary --}}
+        <a href="{{ route('budget.summary') }}" wire:navigate
+            class="group flex flex-col rounded-xl border border-zinc-200 p-6 transition hover:border-zinc-400 hover:shadow-sm dark:border-zinc-700 dark:hover:border-zinc-500">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 transition group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-700">
+                        <flux:icon.chart-bar class="size-5 text-zinc-600 dark:text-zinc-400" />
+                    </div>
+                    <flux:heading>Weekly Summary</flux:heading>
+                </div>
+                <flux:icon.chevron-right class="size-4 text-zinc-400 transition group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />
+            </div>
+
+            @if (! $this->profile)
+                <flux:text class="text-zinc-400">Complete your calorie setup to get started.</flux:text>
+            @elseif ($this->daysLoggedThisWeek === 0)
+                <flux:text class="text-zinc-400">No entries logged this week.</flux:text>
+            @else
+                <div class="flex-1">
+                    <p class="text-3xl font-bold tracking-tight {{ ($this->weeklyBalance ?? 0) <= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500' }}">
+                        {{ ($this->weeklyBalance ?? 0) > 0 ? '+' : '' }}{{ number_format($this->weeklyBalance ?? 0) }}
+                    </p>
+                    <flux:text size="sm" class="mt-0.5 text-zinc-400">cal {{ ($this->weeklyBalance ?? 0) > 0 ? 'over' : 'under' }} budget this week</flux:text>
+                </div>
+                <div class="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+                    {{ $this->daysLoggedThisWeek }} of 7 days logged
+                </div>
+            @endif
+        </a>
+
+        {{-- Calorie Setup --}}
+        <a href="{{ route('budget.setup') }}" wire:navigate
+            class="group flex flex-col rounded-xl border border-zinc-200 p-6 transition hover:border-zinc-400 hover:shadow-sm dark:border-zinc-700 dark:hover:border-zinc-500">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 transition group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-700">
+                        <flux:icon.cog-6-tooth class="size-5 text-zinc-600 dark:text-zinc-400" />
+                    </div>
+                    <flux:heading>Calorie Setup</flux:heading>
+                </div>
+                <flux:icon.chevron-right class="size-4 text-zinc-400 transition group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />
+            </div>
+
+            @if (! $this->profile)
+                <flux:text class="text-zinc-400">Complete your calorie setup to see your numbers.</flux:text>
+            @else
+                <dl class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Daily Target</flux:text>
+                        <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{{ number_format($this->profile->daily_calorie_target) }} cal</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">TDEE</flux:text>
+                        <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{{ number_format($this->profile->tdee) }} cal</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Goal</flux:text>
+                        <flux:badge size="sm" variant="outline">{{ $this->goalLabel }}</flux:badge>
+                    </div>
+                </dl>
+            @endif
+        </a>
+
+        {{-- Macro Calculator --}}
+        <a href="{{ route('budget.macros') }}" wire:navigate
+            class="group flex flex-col rounded-xl border border-zinc-200 p-6 transition hover:border-zinc-400 hover:shadow-sm dark:border-zinc-700 dark:hover:border-zinc-500">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 transition group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-700">
+                        <flux:icon.chart-pie class="size-5 text-zinc-600 dark:text-zinc-400" />
+                    </div>
+                    <flux:heading>Macro Calculator</flux:heading>
+                </div>
+                <flux:icon.chevron-right class="size-4 text-zinc-400 transition group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />
+            </div>
+
+            @if (! $this->profile)
+                <flux:text class="text-zinc-400">Complete your calorie setup to see your macros.</flux:text>
+            @else
+                <dl class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Carbs</flux:text>
+                        <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                            {{ $this->profile->carb_pct }}%
+                            <span class="font-normal text-zinc-400">→</span>
+                            {{ $this->computedCarbGrams }}g
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Protein</flux:text>
+                        <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                            {{ $this->profile->protein_pct }}%
+                            <span class="font-normal text-zinc-400">→</span>
+                            {{ $this->computedProteinGrams }}g
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Fat</flux:text>
+                        <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                            {{ $this->profile->fat_pct }}%
+                            <span class="font-normal text-zinc-400">→</span>
+                            {{ $this->computedFatGrams }}g
+                        </span>
+                    </div>
+                </dl>
+            @endif
+        </a>
+
+    </div>
+</div>

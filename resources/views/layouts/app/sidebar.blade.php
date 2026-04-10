@@ -24,6 +24,9 @@
                     <flux:sidebar.item icon="cog-6-tooth" :href="route('budget.setup')" :current="request()->routeIs('budget.setup')" wire:navigate>
                         {{ __('Calorie Setup') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="chart-pie" :href="route('budget.macros')" :current="request()->routeIs('budget.macros')" wire:navigate>
+                        {{ __('Macro Calculator') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

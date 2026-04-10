@@ -28,6 +28,10 @@ return new class extends Migration
             $table->unsignedSmallInteger('tdee');
             $table->string('goal')->default(Goal::Maintain->value);
             $table->unsignedSmallInteger('daily_calorie_target');
+            $table->string('macro_preset')->nullable();
+            $table->unsignedTinyInteger('carb_pct')->default(50);
+            $table->unsignedTinyInteger('protein_pct')->default(30);
+            $table->unsignedTinyInteger('fat_pct')->default(20);
             $table->timestamps();
 
             $table->unique('user_id');
