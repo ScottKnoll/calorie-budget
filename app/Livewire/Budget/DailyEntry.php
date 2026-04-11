@@ -19,6 +19,12 @@ class DailyEntry extends Component
 
     public ?int $calories_consumed = null;
 
+    public ?int $carbs_grams = null;
+
+    public ?int $protein_grams = null;
+
+    public ?int $fat_grams = null;
+
     public string $notes = '';
 
     public function mount(?string $date = null): void
@@ -62,6 +68,9 @@ class DailyEntry extends Component
     private function loadEntry(): void
     {
         $this->calories_consumed = null;
+        $this->carbs_grams = null;
+        $this->protein_grams = null;
+        $this->fat_grams = null;
         $this->notes = '';
 
         /** @var User $user */
@@ -73,6 +82,9 @@ class DailyEntry extends Component
 
         if ($entry) {
             $this->calories_consumed = $entry->calories_consumed;
+            $this->carbs_grams = $entry->carbs_grams;
+            $this->protein_grams = $entry->protein_grams;
+            $this->fat_grams = $entry->fat_grams;
             $this->notes = $entry->notes ?? '';
         }
     }
@@ -198,6 +210,9 @@ class DailyEntry extends Component
     {
         $this->validate([
             'calories_consumed' => ['required', 'integer', 'min:0', 'max:99999'],
+            'carbs_grams' => ['nullable', 'integer', 'min:0', 'max:9999'],
+            'protein_grams' => ['nullable', 'integer', 'min:0', 'max:9999'],
+            'fat_grams' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -208,6 +223,9 @@ class DailyEntry extends Component
             ['date' => $this->date],
             [
                 'calories_consumed' => $this->calories_consumed,
+                'carbs_grams' => $this->carbs_grams,
+                'protein_grams' => $this->protein_grams,
+                'fat_grams' => $this->fat_grams,
                 'notes' => $this->notes ?: null,
             ],
         );

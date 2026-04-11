@@ -148,3 +148,63 @@ it('returns null for goalLabel when no profile exists', function () {
 
     expect($component->get('goalLabel'))->toBeNull();
 });
+
+it('shows macro targets when no entry logged today', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create([
+        'daily_calorie_target' => 2000,
+        'carb_pct' => 50,
+        'protein_pct' => 30,
+        'fat_pct' => 20,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(Dashboard::class)
+        ->assertSeeText('50%')
+        ->assertSeeText('250g');
+});
+
+it('shows consumed vs target grams when today has macro data', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create([
+        'daily_calorie_target' => 2000,
+        'carb_pct' => 50,
+        'protein_pct' => 30,
+        'fat_pct' => 20,
+    ]);
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::today(),
+        'calories_consumed' => 1800,
+        'carbs_grams' => 180,
+        'protein_grams' => 130,
+        'fat_grams' => 55,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(Dashboard::class)
+        ->assertSeeText('180g')
+        ->assertSeeText('/ 250g')
+        ->assertSeeText('130g')
+        ->assertSeeText('/ 150g')
+        ->assertSeeText('55g')
+        ->assertSeeText('/ 44g');
+});
+
+it('shows macro targets (not consumed) when entry has no macro data', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create([
+        'daily_calorie_target' => 2000,
+        'carb_pct' => 50,
+        'protein_pct' => 30,
+        'fat_pct' => 20,
+    ]);
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::today(),
+        'calories_consumed' => 1800,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(Dashboard::class)
+        ->assertSeeText('50%')
+        ->assertSeeText('250g');
+});

@@ -256,3 +256,91 @@ it('clears the form when navigating to a day with no entry', function () {
         ->call('previousDay')
         ->assertSet('calories_consumed', null);
 });
+
+it('saves macro grams alongside calories', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create(['daily_calorie_target' => 2000]);
+
+    Livewire::actingAs($user)
+        ->test(DailyEntry::class)
+        ->set('calories_consumed', 1800)
+        ->set('carbs_grams', 200)
+        ->set('protein_grams', 150)
+        ->set('fat_grams', 60)
+        ->call('save');
+
+    $entry = CalorieEntry::where('user_id', $user->id)->whereDate('date', Carbon::today())->first();
+
+    expect($entry)
+        ->not->toBeNull()
+        ->carbs_grams->toBe(200)
+        ->protein_grams->toBe(150)
+        ->fat_grams->toBe(60);
+});
+
+it('loads macro grams from an existing entry', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create();
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::today(),
+        'calories_consumed' => 1800,
+        'carbs_grams' => 200,
+        'protein_grams' => 150,
+        'fat_grams' => 60,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(DailyEntry::class)
+        ->assertSet('carbs_grams', 200)
+        ->assertSet('protein_grams', 150)
+        ->assertSet('fat_grams', 60);
+});
+
+it('allows saving with null macro grams', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create(['daily_calorie_target' => 2000]);
+
+    Livewire::actingAs($user)
+        ->test(DailyEntry::class)
+        ->set('calories_consumed', 1800)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $entry = CalorieEntry::where('user_id', $user->id)->whereDate('date', Carbon::today())->first();
+
+    expect($entry->carbs_grams)->toBeNull();
+    expect($entry->protein_grams)->toBeNull();
+    expect($entry->fat_grams)->toBeNull();
+});
+
+it('validates that macro grams must be non-negative integers', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create();
+
+    Livewire::actingAs($user)
+        ->test(DailyEntry::class)
+        ->set('calories_consumed', 1800)
+        ->set('carbs_grams', -1)
+        ->call('save')
+        ->assertHasErrors(['carbs_grams']);
+});
+
+it('clears macro grams when navigating to a day with no entry', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create();
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::today(),
+        'calories_consumed' => 1800,
+        'carbs_grams' => 200,
+        'protein_grams' => 150,
+        'fat_grams' => 60,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(DailyEntry::class)
+        ->assertSet('carbs_grams', 200)
+        ->call('previousDay')
+        ->assertSet('carbs_grams', null)
+        ->assertSet('protein_grams', null)
+        ->assertSet('fat_grams', null);
+});

@@ -37,7 +37,7 @@ class TdeeCalculator
         ActivityFactor $activity,
         ExerciseFactor $exercise,
         FormulaType $formula = FormulaType::Standard,
-        ?int $bodyFatPct = null,
+        ?float $bodyFatPct = null,
     ): int {
         $kg = $weightLbs / 2.205;
 
@@ -62,7 +62,7 @@ class TdeeCalculator
         int $heightInches,
         int $weightLbs,
         FormulaType $formula = FormulaType::Standard,
-        ?int $bodyFatPct = null,
+        ?float $bodyFatPct = null,
     ): int {
         $kg = $weightLbs / 2.205;
 
@@ -118,7 +118,7 @@ class TdeeCalculator
         return (10 * $kg) + (6.25 * $cm) - (5 * $age) + ($gender === Gender::Male ? 5 : -161);
     }
 
-    private static function katchMcArdleBmr(float $kg, int $bodyFatPct): float
+    private static function katchMcArdleBmr(float $kg, float $bodyFatPct): float
     {
         $lbmKg = $kg * (1 - $bodyFatPct / 100);
 

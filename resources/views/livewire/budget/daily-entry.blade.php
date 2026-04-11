@@ -101,6 +101,47 @@
                 <flux:error name="calories_consumed" />
             </flux:field>
 
+            <div>
+                <flux:text class="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">Macros (Optional)</flux:text>
+                <div class="grid grid-cols-3 gap-3">
+                    <flux:field>
+                        <flux:label>Carbs</flux:label>
+                        <flux:input
+                            wire:model="carbs_grams"
+                            type="number"
+                            min="0"
+                            max="9999"
+                            placeholder="g"
+                        />
+                        <flux:error name="carbs_grams" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Protein</flux:label>
+                        <flux:input
+                            wire:model="protein_grams"
+                            type="number"
+                            min="0"
+                            max="9999"
+                            placeholder="g"
+                        />
+                        <flux:error name="protein_grams" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Fat</flux:label>
+                        <flux:input
+                            wire:model="fat_grams"
+                            type="number"
+                            min="0"
+                            max="9999"
+                            placeholder="g"
+                        />
+                        <flux:error name="fat_grams" />
+                    </flux:field>
+                </div>
+            </div>
+
             <flux:field>
                 <flux:label>Notes (Optional)</flux:label>
                 <flux:input

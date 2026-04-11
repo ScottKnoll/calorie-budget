@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->date('date');
             $table->unsignedSmallInteger('calories_consumed');
+            $table->unsignedInteger('carbs_grams')->nullable();
+            $table->unsignedInteger('protein_grams')->nullable();
+            $table->unsignedInteger('fat_grams')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
 

@@ -126,7 +126,7 @@
                     @if ($formula === 'lean_mass')
                         <flux:field>
                             <flux:label>Body Fat %</flux:label>
-                            <flux:input wire:model.live="body_fat_pct" type="number" min="1" max="70" placeholder="15" suffix="%" />
+                            <flux:input wire:model.live="body_fat_pct" type="number" min="1" max="70" step="0.1" placeholder="15.0" suffix="%" />
                             <flux:error name="body_fat_pct" />
                         </flux:field>
                     @endif

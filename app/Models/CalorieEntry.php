@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
-#[Fillable(['user_id', 'date', 'calories_consumed', 'notes'])]
+#[Fillable(['user_id', 'date', 'calories_consumed', 'carbs_grams', 'protein_grams', 'fat_grams', 'notes'])]
 class CalorieEntry extends Model
 {
     /** @use HasFactory<CalorieEntryFactory> */
@@ -20,6 +19,9 @@ class CalorieEntry extends Model
         return [
             'date' => 'date',
             'calories_consumed' => 'integer',
+            'carbs_grams' => 'integer',
+            'protein_grams' => 'integer',
+            'fat_grams' => 'integer',
         ];
     }
 

@@ -118,29 +118,50 @@
             @if (! $this->profile)
                 <flux:text class="text-zinc-400">Complete your calorie setup to see your macros.</flux:text>
             @else
+                @php
+                    $hasTodayMacros = $this->todaysEntry
+                        && ($this->todaysEntry->carbs_grams !== null
+                            || $this->todaysEntry->protein_grams !== null
+                            || $this->todaysEntry->fat_grams !== null);
+                @endphp
                 <dl class="space-y-2">
                     <div class="flex items-center justify-between">
                         <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Carbs</flux:text>
                         <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                            {{ $this->profile->carb_pct }}%
-                            <span class="font-normal text-zinc-400">→</span>
-                            {{ $this->computedCarbGrams }}g
+                            @if ($hasTodayMacros)
+                                {{ $this->todaysEntry->carbs_grams ?? '—' }}g
+                                <span class="font-normal text-zinc-400">/ {{ $this->computedCarbGrams }}g</span>
+                            @else
+                                {{ $this->profile->carb_pct }}%
+                                <span class="font-normal text-zinc-400">→</span>
+                                {{ $this->computedCarbGrams }}g
+                            @endif
                         </span>
                     </div>
                     <div class="flex items-center justify-between">
                         <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Protein</flux:text>
                         <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                            {{ $this->profile->protein_pct }}%
-                            <span class="font-normal text-zinc-400">→</span>
-                            {{ $this->computedProteinGrams }}g
+                            @if ($hasTodayMacros)
+                                {{ $this->todaysEntry->protein_grams ?? '—' }}g
+                                <span class="font-normal text-zinc-400">/ {{ $this->computedProteinGrams }}g</span>
+                            @else
+                                {{ $this->profile->protein_pct }}%
+                                <span class="font-normal text-zinc-400">→</span>
+                                {{ $this->computedProteinGrams }}g
+                            @endif
                         </span>
                     </div>
                     <div class="flex items-center justify-between">
                         <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Fat</flux:text>
                         <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                            {{ $this->profile->fat_pct }}%
-                            <span class="font-normal text-zinc-400">→</span>
-                            {{ $this->computedFatGrams }}g
+                            @if ($hasTodayMacros)
+                                {{ $this->todaysEntry->fat_grams ?? '—' }}g
+                                <span class="font-normal text-zinc-400">/ {{ $this->computedFatGrams }}g</span>
+                            @else
+                                {{ $this->profile->fat_pct }}%
+                                <span class="font-normal text-zinc-400">→</span>
+                                {{ $this->computedFatGrams }}g
+                            @endif
                         </span>
                     </div>
                 </dl>

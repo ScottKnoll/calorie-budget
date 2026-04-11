@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('calorie_profiles', function (Blueprint $table) {
             $table->string('formula')->default('standard')->after('exercise_factor');
-            $table->unsignedTinyInteger('body_fat_pct')->nullable()->after('formula');
+            $table->decimal('body_fat_pct', 5, 2)->nullable()->after('formula');
         });
     }
 

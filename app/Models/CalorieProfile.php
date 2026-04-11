@@ -57,7 +57,7 @@ class CalorieProfile extends Model
             'weight_lbs' => 'integer',
             'goal_weight_lbs' => 'integer',
             'calorie_deficit_pct' => 'integer',
-            'body_fat_pct' => 'integer',
+            'body_fat_pct' => 'float',
             'tdee' => 'integer',
             'daily_calorie_target' => 'integer',
             'carb_pct' => 'integer',

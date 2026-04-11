@@ -261,7 +261,7 @@ it('saves a lean mass profile and computes TDEE via Katch-McArdle', function () 
 
     expect($profile)
         ->formula->toBe(FormulaType::LeanMass)
-        ->body_fat_pct->toBe(15)
+        ->body_fat_pct->toBe(15.0)
         ->weight_lbs->toBe(200)
         ->tdee->toBe(2442)
         ->daily_calorie_target->toBe(2442);

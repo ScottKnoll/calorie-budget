@@ -113,6 +113,35 @@
             </flux:table.rows>
         </flux:table>
 
+        @if ($this->weeklyMacroSummary)
+            <div class="mt-8">
+                <flux:heading size="lg" class="mb-4">Weekly Macros</flux:heading>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    @foreach (['carbs' => 'Carbs', 'protein' => 'Protein', 'fat' => 'Fat'] as $key => $label)
+                        @php
+                            $macro = $this->weeklyMacroSummary[$key];
+                            $delta = $macro['delta'];
+                        @endphp
+                        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                            <flux:text class="mb-1 text-xs uppercase tracking-wide text-zinc-500">{{ $label }}</flux:text>
+                            <p class="text-2xl font-semibold tabular-nums">{{ number_format($macro['consumed']) }}g</p>
+                            <flux:text class="mt-1 text-xs text-zinc-400">of {{ number_format($macro['target']) }}g target</flux:text>
+                            <p class="mt-2 text-sm font-medium tabular-nums
+                                {{ $delta > 0 ? 'text-red-500' : ($delta < 0 ? 'text-green-600 dark:text-green-400' : 'text-zinc-400') }}">
+                                @if ($delta > 0)
+                                    +{{ number_format($delta) }}g over
+                                @elseif ($delta < 0)
+                                    {{ number_format($delta) }}g under
+                                @else
+                                    On target
+                                @endif
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         <div class="mt-6">
             <flux:link href="{{ route('budget.log') }}" wire:navigate>
                 &larr; Back to today's log

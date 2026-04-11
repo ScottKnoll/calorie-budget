@@ -40,7 +40,7 @@ class Setup extends Component
 
     public string $formula = 'standard';
 
-    public ?int $body_fat_pct = null;
+    public ?float $body_fat_pct = null;
 
     public string $goal = 'maintain';
 
@@ -202,7 +202,7 @@ class Setup extends Component
             'activity_factor' => ['required', new Enum(ActivityFactor::class)],
             'exercise_factor' => ['required', new Enum(ExerciseFactor::class)],
             'formula' => ['required', new Enum(FormulaType::class)],
-            'body_fat_pct' => [$isLeanMass ? 'required' : 'nullable', 'integer', 'min:1', 'max:70'],
+            'body_fat_pct' => [$isLeanMass ? 'required' : 'nullable', 'numeric', 'min:1', 'max:70'],
             'goal' => ['required', new Enum(Goal::class)],
             'daily_calorie_target' => ['required', 'integer', 'min:500', 'max:9999'],
         ]);
