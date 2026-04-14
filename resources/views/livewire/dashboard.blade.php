@@ -102,6 +102,42 @@
             @endif
         </a>
 
+        {{-- Weight Log --}}
+        <a href="{{ route('budget.weight') }}" wire:navigate
+            class="group flex flex-col rounded-xl border border-zinc-200 p-6 transition hover:border-zinc-400 hover:shadow-sm dark:border-zinc-700 dark:hover:border-zinc-500">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 transition group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-700">
+                        <flux:icon.scale class="size-5 text-zinc-600 dark:text-zinc-400" />
+                    </div>
+                    <flux:heading>Weight Log</flux:heading>
+                </div>
+                <flux:icon.chevron-right class="size-4 text-zinc-400 transition group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />
+            </div>
+
+            @if (! $this->latestWeightEntry)
+                <flux:text class="text-zinc-400">No weight logged yet. Start tracking your progress.</flux:text>
+            @else
+                <div class="flex-1">
+                    <p class="text-3xl font-bold tracking-tight">
+                        {{ number_format($this->latestWeightEntry->weight_lbs, 1) }}
+                    </p>
+                    <flux:text size="sm" class="mt-0.5 text-zinc-400">lbs as of {{ $this->latestWeightEntry->date->format('M j') }}</flux:text>
+                </div>
+                @if ($this->weightToGoal !== null)
+                    <div class="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+                        @if ($this->weightToGoal <= 0)
+                            <span class="font-semibold text-emerald-600 dark:text-emerald-400">Goal reached!</span>
+                            Goal: {{ number_format($this->profile->goal_weight_lbs, 1) }} lbs
+                        @else
+                            {{ number_format($this->weightToGoal, 1) }} lbs to goal
+                            <span class="text-zinc-400">({{ number_format($this->profile->goal_weight_lbs, 1) }} lbs)</span>
+                        @endif
+                    </div>
+                @endif
+            @endif
+        </a>
+
         {{-- Macro Calculator --}}
         <a href="{{ route('budget.macros') }}" wire:navigate
             class="group flex flex-col rounded-xl border border-zinc-200 p-6 transition hover:border-zinc-400 hover:shadow-sm dark:border-zinc-700 dark:hover:border-zinc-500">

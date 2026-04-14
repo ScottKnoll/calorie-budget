@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Enums\Goal;
 use App\Models\CalorieEntry;
 use App\Models\CalorieProfile;
+use App\Models\WeightEntry;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
@@ -59,7 +60,8 @@ class Dashboard extends Component
         $weekStart = Carbon::now()->startOfWeek()->toDateString();
 
         return auth()->user()->calorieEntries()
-            ->whereBetween('date', [$weekStart, Carbon::today()->toDateString()])
+            ->whereDate('date', '>=', $weekStart)
+            ->whereDate('date', '<=', Carbon::today()->toDateString())
             ->get()
             ->sum(fn (CalorieEntry $entry) => $entry->calories_consumed - $target);
     }
@@ -70,7 +72,8 @@ class Dashboard extends Component
         $weekStart = Carbon::now()->startOfWeek()->toDateString();
 
         return auth()->user()->calorieEntries()
-            ->whereBetween('date', [$weekStart, Carbon::today()->toDateString()])
+            ->whereDate('date', '>=', $weekStart)
+            ->whereDate('date', '<=', Carbon::today()->toDateString())
             ->count();
     }
 
@@ -110,6 +113,24 @@ class Dashboard extends Component
         return $this->profile?->goal instanceof Goal
             ? $this->profile->goal->label()
             : null;
+    }
+
+    #[Computed]
+    public function latestWeightEntry(): ?WeightEntry
+    {
+        return auth()->user()->weightEntries()
+            ->orderBy('date', 'desc')
+            ->first();
+    }
+
+    #[Computed]
+    public function weightToGoal(): ?float
+    {
+        if (! $this->latestWeightEntry || ! $this->profile?->goal_weight_lbs) {
+            return null;
+        }
+
+        return round($this->latestWeightEntry->weight_lbs - $this->profile->goal_weight_lbs, 1);
     }
 
     public function render(): View

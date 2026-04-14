@@ -21,6 +21,9 @@
                     <flux:sidebar.item icon="chart-bar" :href="route('budget.summary')" :current="request()->routeIs('budget.summary')" wire:navigate>
                         {{ __('Weekly Summary') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="scale" :href="route('budget.weight')" :current="request()->routeIs('budget.weight')" wire:navigate>
+                        {{ __('Weight Log') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="cog-6-tooth" :href="route('budget.setup')" :current="request()->routeIs('budget.setup')" wire:navigate>
                         {{ __('Calorie Setup') }}
                     </flux:sidebar.item>

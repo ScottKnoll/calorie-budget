@@ -59,7 +59,8 @@ class WeeklySummary extends Component
         $target = $this->profile?->daily_calorie_target;
 
         $entries = auth()->user()->calorieEntries()
-            ->whereBetween('date', [$this->weekStart, $this->weekEnd->toDateString()])
+            ->whereDate('date', '>=', $this->weekStart)
+            ->whereDate('date', '<=', $this->weekEnd->toDateString())
             ->get()
             ->keyBy(fn (CalorieEntry $entry) => $entry->date->toDateString());
 

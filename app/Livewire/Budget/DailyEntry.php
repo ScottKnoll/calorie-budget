@@ -27,6 +27,8 @@ class DailyEntry extends Component
 
     public string $notes = '';
 
+    public ?float $weight_lbs = null;
+
     public function mount(?string $date = null): void
     {
         try {
@@ -72,6 +74,7 @@ class DailyEntry extends Component
         $this->protein_grams = null;
         $this->fat_grams = null;
         $this->notes = '';
+        $this->weight_lbs = null;
 
         /** @var User $user */
         $user = Auth::user();
@@ -86,6 +89,14 @@ class DailyEntry extends Component
             $this->protein_grams = $entry->protein_grams;
             $this->fat_grams = $entry->fat_grams;
             $this->notes = $entry->notes ?? '';
+        }
+
+        $weightEntry = $user->weightEntries()
+            ->whereDate('date', $this->date)
+            ->first();
+
+        if ($weightEntry) {
+            $this->weight_lbs = $weightEntry->weight_lbs;
         }
     }
 
@@ -136,7 +147,8 @@ class DailyEntry extends Component
         $user = Auth::user();
 
         $loggedEntries = $user->calorieEntries()
-            ->whereBetween('date', [$weekStart->toDateString(), $yesterday->toDateString()])
+            ->whereDate('date', '>=', $weekStart->toDateString())
+            ->whereDate('date', '<=', $yesterday->toDateString())
             ->get()
             ->keyBy(fn (CalorieEntry $entry) => $entry->date->toDateString());
 
@@ -214,21 +226,49 @@ class DailyEntry extends Component
             'protein_grams' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'fat_grams' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'notes' => ['nullable', 'string', 'max:500'],
+            'weight_lbs' => ['nullable', 'numeric', 'min:50', 'max:999'],
         ]);
 
         /** @var User $user */
         $user = Auth::user();
 
-        $user->calorieEntries()->updateOrCreate(
-            ['date' => $this->date],
-            [
+        $existingCalorieEntry = $user->calorieEntries()
+            ->whereDate('date', $this->date)
+            ->first();
+
+        if ($existingCalorieEntry) {
+            $existingCalorieEntry->update([
                 'calories_consumed' => $this->calories_consumed,
                 'carbs_grams' => $this->carbs_grams,
                 'protein_grams' => $this->protein_grams,
                 'fat_grams' => $this->fat_grams,
                 'notes' => $this->notes ?: null,
-            ],
-        );
+            ]);
+        } else {
+            $user->calorieEntries()->create([
+                'date' => $this->date,
+                'calories_consumed' => $this->calories_consumed,
+                'carbs_grams' => $this->carbs_grams,
+                'protein_grams' => $this->protein_grams,
+                'fat_grams' => $this->fat_grams,
+                'notes' => $this->notes ?: null,
+            ]);
+        }
+
+        if ($this->weight_lbs !== null) {
+            $existing = $user->weightEntries()
+                ->whereDate('date', $this->date)
+                ->first();
+
+            if ($existing) {
+                $existing->update(['weight_lbs' => $this->weight_lbs]);
+            } else {
+                $user->weightEntries()->create([
+                    'date' => $this->date,
+                    'weight_lbs' => $this->weight_lbs,
+                ]);
+            }
+        }
 
         session()->flash('status', 'saved');
     }

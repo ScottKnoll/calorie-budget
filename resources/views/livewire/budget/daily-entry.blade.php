@@ -143,6 +143,20 @@
             </div>
 
             <flux:field>
+                <flux:label>Weight (Optional)</flux:label>
+                <flux:input
+                    wire:model="weight_lbs"
+                    type="number"
+                    min="50"
+                    max="999"
+                    step="0.1"
+                    placeholder="lbs"
+                    suffix="lbs"
+                />
+                <flux:error name="weight_lbs" />
+            </flux:field>
+
+            <flux:field>
                 <flux:label>Notes (Optional)</flux:label>
                 <flux:input
                     wire:model="notes"
