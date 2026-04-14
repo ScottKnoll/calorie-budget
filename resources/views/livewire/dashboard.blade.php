@@ -138,6 +138,52 @@
             @endif
         </a>
 
+        {{-- Workouts --}}
+        <a href="{{ route('budget.workouts') }}" wire:navigate
+            class="group flex flex-col rounded-xl border border-zinc-200 p-6 transition hover:border-zinc-400 hover:shadow-sm dark:border-zinc-700 dark:hover:border-zinc-500">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 transition group-hover:bg-zinc-200 dark:bg-zinc-800 dark:group-hover:bg-zinc-700">
+                        <flux:icon.bolt class="size-5 text-zinc-600 dark:text-zinc-400" />
+                    </div>
+                    <flux:heading>Workouts</flux:heading>
+                </div>
+                <flux:icon.chevron-right class="size-4 text-zinc-400 transition group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />
+            </div>
+
+            @if ($this->todaysWorkouts->isEmpty())
+                <flux:text class="text-zinc-400">No workout logged today.</flux:text>
+                @if ($this->weeklyWorkoutCount > 0)
+                    <div class="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+                        {{ $this->weeklyWorkoutCount }} workout{{ $this->weeklyWorkoutCount === 1 ? '' : 's' }} this week
+                        @if ($this->weeklyCaloriesBurned > 0)
+                            &middot; {{ number_format($this->weeklyCaloriesBurned) }} cal burned
+                        @endif
+                    </div>
+                @endif
+            @else
+                <div class="flex-1 space-y-1.5">
+                    @foreach ($this->todaysWorkouts as $workout)
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="font-medium text-zinc-800 dark:text-zinc-100">{{ $workout->typeLabel() }}</span>
+                            <span class="text-zinc-500 dark:text-zinc-400">
+                                {{ $workout->duration_minutes }} min
+                                @if ($workout->calories_burned)
+                                    &middot; {{ number_format($workout->calories_burned) }} cal
+                                @endif
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+                    {{ $this->weeklyWorkoutCount }} workout{{ $this->weeklyWorkoutCount === 1 ? '' : 's' }} this week
+                    @if ($this->weeklyCaloriesBurned > 0)
+                        &middot; {{ number_format($this->weeklyCaloriesBurned) }} cal burned
+                    @endif
+                </div>
+            @endif
+        </a>
+
         {{-- Macro Calculator --}}
         <a href="{{ route('budget.macros') }}" wire:navigate
             class="group flex flex-col rounded-xl border border-zinc-200 p-6 transition hover:border-zinc-400 hover:shadow-sm dark:border-zinc-700 dark:hover:border-zinc-500">

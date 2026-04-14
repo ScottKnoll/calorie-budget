@@ -6,7 +6,9 @@ use App\Enums\Goal;
 use App\Models\CalorieEntry;
 use App\Models\CalorieProfile;
 use App\Models\WeightEntry;
+use App\Models\WorkoutEntry;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
@@ -131,6 +133,42 @@ class Dashboard extends Component
         }
 
         return round($this->latestWeightEntry->weight_lbs - $this->profile->goal_weight_lbs, 1);
+    }
+
+    /**
+     * Today's workout entries.
+     *
+     * @return Collection<int, WorkoutEntry>
+     */
+    #[Computed]
+    public function todaysWorkouts(): Collection
+    {
+        return auth()->user()->workoutEntries()
+            ->whereDate('date', Carbon::today())
+            ->orderBy('id')
+            ->get();
+    }
+
+    #[Computed]
+    public function weeklyWorkoutCount(): int
+    {
+        $weekStart = Carbon::now()->startOfWeek()->toDateString();
+
+        return auth()->user()->workoutEntries()
+            ->whereDate('date', '>=', $weekStart)
+            ->whereDate('date', '<=', Carbon::today()->toDateString())
+            ->count();
+    }
+
+    #[Computed]
+    public function weeklyCaloriesBurned(): int
+    {
+        $weekStart = Carbon::now()->startOfWeek()->toDateString();
+
+        return (int) auth()->user()->workoutEntries()
+            ->whereDate('date', '>=', $weekStart)
+            ->whereDate('date', '<=', Carbon::today()->toDateString())
+            ->sum('calories_burned');
     }
 
     public function render(): View
