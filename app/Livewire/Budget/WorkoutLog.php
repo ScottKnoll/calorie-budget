@@ -153,6 +153,17 @@ class WorkoutLog extends Component
             ->get();
     }
 
+    /**
+     * Entries grouped by date string, newest date first.
+     *
+     * @return Collection<string, Collection<int, WorkoutEntry>>
+     */
+    #[Computed]
+    public function groupedEntries(): Collection
+    {
+        return $this->entries->groupBy(fn (WorkoutEntry $entry) => $entry->date->toDateString());
+    }
+
     #[Computed]
     public function weeklyCount(): int
     {

@@ -84,7 +84,7 @@
         <flux:button type="submit" variant="primary">Add Workout</flux:button>
     </form>
 
-    <div class="mt-10 border-t border-zinc-200 dark:border-zinc-700"></div>
+    <div class="mt-10 h-px bg-zinc-200 dark:bg-zinc-700"></div>
 
     <div class="mt-8">
 
@@ -117,124 +117,134 @@
         {{-- History table --}}
         <flux:table>
             <flux:table.columns>
-                <flux:table.column>Date</flux:table.column>
                 <flux:table.column>Type</flux:table.column>
-                <flux:table.column class="text-right">Duration</flux:table.column>
-                <flux:table.column class="text-right">Cal Burned</flux:table.column>
+                <flux:table.column>Duration</flux:table.column>
+                <flux:table.column>Cal Burned</flux:table.column>
                 <flux:table.column></flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
-                @foreach ($this->entries as $entry)
-                    <flux:table.row wire:key="{{ $entry->id }}">
-                        @if ($editingId === $entry->id)
-                            <flux:table.cell colspan="5">
-                                <form wire:submit="updateEntry" class="space-y-3 py-1">
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <flux:field>
-                                            <flux:label>Type</flux:label>
-                                            <flux:select wire:model.live="editingWorkoutType">
-                                                @foreach ($this->workoutTypeOptions() as $value => $label)
-                                                    <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
-                                                @endforeach
-                                            </flux:select>
-                                            <flux:error name="editingWorkoutType" />
-                                        </flux:field>
+                @foreach ($this->groupedEntries as $dateString => $dayEntries)
+                    {{-- Date group header --}}
+                    <flux:table.row>
+                        <flux:table.cell colspan="4" class="pt-4 pb-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                                    {{ \Illuminate\Support\Carbon::parse($dateString)->format('D, M j, Y') }}
+                                </span>
+                                @if (\Illuminate\Support\Carbon::parse($dateString)->isToday())
+                                    <flux:badge size="sm" color="blue" inset="top bottom">Today</flux:badge>
+                                @endif
+                            </div>
+                        </flux:table.cell>
+                    </flux:table.row>
 
-                                        @if ($editingWorkoutType === 'custom')
+                    {{-- Workouts for this date --}}
+                    @foreach ($dayEntries as $entry)
+                        <flux:table.row wire:key="{{ $entry->id }}">
+                            @if ($editingId === $entry->id)
+                                <flux:table.cell colspan="4">
+                                    <form wire:submit="updateEntry" class="space-y-3 py-1">
+                                        <div class="grid grid-cols-2 gap-3">
                                             <flux:field>
-                                                <flux:label>Custom Type</flux:label>
+                                                <flux:label>Type</flux:label>
+                                                <flux:select wire:model.live="editingWorkoutType">
+                                                    @foreach ($this->workoutTypeOptions() as $value => $label)
+                                                        <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                                                    @endforeach
+                                                </flux:select>
+                                                <flux:error name="editingWorkoutType" />
+                                            </flux:field>
+
+                                            @if ($editingWorkoutType === 'custom')
+                                                <flux:field>
+                                                    <flux:label>Custom Type</flux:label>
+                                                    <flux:input
+                                                        wire:model="editingCustomType"
+                                                        type="text"
+                                                        maxlength="100"
+                                                        required
+                                                    />
+                                                    <flux:error name="editingCustomType" />
+                                                </flux:field>
+                                            @endif
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <flux:field>
+                                                <flux:label>Duration (min)</flux:label>
                                                 <flux:input
-                                                    wire:model="editingCustomType"
-                                                    type="text"
-                                                    maxlength="100"
+                                                    wire:model="editingDurationMinutes"
+                                                    type="number"
+                                                    min="1"
+                                                    max="600"
                                                     required
                                                 />
-                                                <flux:error name="editingCustomType" />
+                                                <flux:error name="editingDurationMinutes" />
                                             </flux:field>
-                                        @endif
-                                    </div>
 
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <flux:field>
-                                            <flux:label>Duration (min)</flux:label>
-                                            <flux:input
-                                                wire:model="editingDurationMinutes"
-                                                type="number"
-                                                min="1"
-                                                max="600"
-                                                required
-                                            />
-                                            <flux:error name="editingDurationMinutes" />
-                                        </flux:field>
+                                            <flux:field>
+                                                <flux:label>Calories Burned</flux:label>
+                                                <flux:input
+                                                    wire:model="editingCaloriesBurned"
+                                                    type="number"
+                                                    min="1"
+                                                    max="9999"
+                                                    placeholder="optional"
+                                                />
+                                                <flux:error name="editingCaloriesBurned" />
+                                            </flux:field>
+                                        </div>
 
                                         <flux:field>
-                                            <flux:label>Calories Burned</flux:label>
+                                            <flux:label>Notes</flux:label>
                                             <flux:input
-                                                wire:model="editingCaloriesBurned"
-                                                type="number"
-                                                min="1"
-                                                max="9999"
+                                                wire:model="editingNotes"
+                                                type="text"
                                                 placeholder="optional"
+                                                maxlength="1000"
                                             />
-                                            <flux:error name="editingCaloriesBurned" />
+                                            <flux:error name="editingNotes" />
                                         </flux:field>
-                                    </div>
 
-                                    <flux:field>
-                                        <flux:label>Notes</flux:label>
-                                        <flux:input
-                                            wire:model="editingNotes"
-                                            type="text"
-                                            placeholder="optional"
-                                            maxlength="1000"
+                                        <div class="flex gap-2">
+                                            <flux:button type="submit" variant="primary" size="sm">Save</flux:button>
+                                            <flux:button type="button" wire:click="cancelEditing" variant="ghost" size="sm">Cancel</flux:button>
+                                        </div>
+                                    </form>
+                                </flux:table.cell>
+                            @else
+                                <flux:table.cell class="font-medium">
+                                    {{ $entry->typeLabel() }}
+                                    @if ($entry->notes)
+                                        <flux:text class="mt-0.5 text-xs text-zinc-400">{{ $entry->notes }}</flux:text>
+                                    @endif
+                                </flux:table.cell>
+
+                                <flux:table.cell class="tabular-nums">
+                                    {{ $entry->duration_minutes }} min
+                                </flux:table.cell>
+
+                                <flux:table.cell class="tabular-nums text-zinc-500 dark:text-zinc-400">
+                                    {{ $entry->calories_burned ? number_format($entry->calories_burned).' cal' : '—' }}
+                                </flux:table.cell>
+
+                                <flux:table.cell class="text-right">
+                                    <div class="flex justify-end gap-1">
+                                        <flux:button wire:click="startEditing({{ $entry->id }})" variant="ghost" size="sm" icon="pencil" />
+                                        <flux:button
+                                            wire:click="deleteEntry({{ $entry->id }})"
+                                            wire:confirm="Delete this workout entry?"
+                                            variant="ghost"
+                                            size="sm"
+                                            icon="trash"
+                                            class="text-red-500 hover:text-red-600"
                                         />
-                                        <flux:error name="editingNotes" />
-                                    </flux:field>
-
-                                    <div class="flex gap-2">
-                                        <flux:button type="submit" variant="primary" size="sm">Save</flux:button>
-                                        <flux:button type="button" wire:click="cancelEditing" variant="ghost" size="sm">Cancel</flux:button>
                                     </div>
-                                </form>
-                            </flux:table.cell>
-                        @else
-                            <flux:table.cell>
-                                <span class="{{ $entry->date->isToday() ? 'font-semibold' : '' }}">
-                                    {{ $entry->date->format('D, M j, Y') }}
-                                </span>
-                                @if ($entry->date->isToday())
-                                    <flux:badge size="sm" color="blue" inset="top bottom" class="ml-2">Today</flux:badge>
-                                @endif
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ $entry->typeLabel() }}
-                            </flux:table.cell>
-
-                            <flux:table.cell class="text-right tabular-nums">
-                                {{ $entry->duration_minutes }} min
-                            </flux:table.cell>
-
-                            <flux:table.cell class="text-right tabular-nums text-zinc-500 dark:text-zinc-400">
-                                {{ $entry->calories_burned ? number_format($entry->calories_burned) : '—' }}
-                            </flux:table.cell>
-
-                            <flux:table.cell class="text-right">
-                                <div class="flex justify-end gap-1">
-                                    <flux:button wire:click="startEditing({{ $entry->id }})" variant="ghost" size="sm" icon="pencil" />
-                                    <flux:button
-                                        wire:click="deleteEntry({{ $entry->id }})"
-                                        wire:confirm="Delete this workout entry?"
-                                        variant="ghost"
-                                        size="sm"
-                                        icon="trash"
-                                        class="text-red-500 hover:text-red-600"
-                                    />
-                                </div>
-                            </flux:table.cell>
-                        @endif
-                    </flux:table.row>
+                                </flux:table.cell>
+                            @endif
+                        </flux:table.row>
+                    @endforeach
                 @endforeach
             </flux:table.rows>
         </flux:table>
