@@ -4,16 +4,16 @@
             <flux:heading size="xl" class="mb-1">Weight Log</flux:heading>
             <flux:text>Track your progress over time.</flux:text>
         </div>
-        <flux:link href="{{ route('budget.log') }}" wire:navigate class="text-sm">
+        <a href="{{ route('budget.log') }}" wire:navigate class="text-sm text-zinc-700 transition-colors hover:text-zinc-500 dark:text-zinc-300 dark:hover:text-zinc-400">
             &larr; Daily Log
-        </flux:link>
+        </a>
     </div>
 
     @if ($this->entries->isEmpty())
         <flux:callout variant="info" icon="scale">
             <flux:callout.heading>No weight entries yet.</flux:callout.heading>
             <flux:callout.text>
-                Log your weight on the <flux:link href="{{ route('budget.log') }}" wire:navigate>Daily Log</flux:link> page to start tracking progress.
+                Log your weight on the <a href="{{ route('budget.log') }}" wire:navigate class="font-medium text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400">Daily Log</a> page to start tracking progress.
             </flux:callout.text>
         </flux:callout>
     @else
@@ -135,7 +135,7 @@
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>Date</flux:table.column>
-                <flux:table.column class="text-right">Weight</flux:table.column>
+                <flux:table.column>Weight</flux:table.column>
                 <flux:table.column>Notes</flux:table.column>
                 <flux:table.column></flux:table.column>
             </flux:table.columns>
@@ -177,17 +177,17 @@
                             </flux:table.cell>
                         @else
                             <flux:table.cell>
-                                <flux:link
+                                <a
                                     href="{{ route('budget.log', ['date' => $entry->date->toDateString()]) }}"
                                     wire:navigate
-                                    class="{{ $entry->date->isToday() ? 'font-semibold' : '' }}"
-                                >{{ $entry->date->format('D, M j, Y') }}</flux:link>
+                                    class="text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400 {{ $entry->date->isToday() ? 'font-semibold' : '' }}"
+                                >{{ $entry->date->format('D, M j, Y') }}</a>
                                 @if ($entry->date->isToday())
                                     <flux:badge size="sm" color="blue" inset="top bottom" class="ml-2">Today</flux:badge>
                                 @endif
                             </flux:table.cell>
 
-                            <flux:table.cell class="text-right tabular-nums font-medium">
+                            <flux:table.cell variant="strong" class="tabular-nums">
                                 {{ number_format($entry->weight_lbs, 1) }} lbs
                             </flux:table.cell>
 
@@ -195,7 +195,7 @@
                                 {{ $entry->notes ?? '—' }}
                             </flux:table.cell>
 
-                            <flux:table.cell class="text-right">
+                            <flux:table.cell>
                                 <div class="flex justify-end gap-1">
                                     <flux:button wire:click="startEditing({{ $entry->id }})" variant="ghost" size="sm" icon="pencil" />
                                     <flux:button

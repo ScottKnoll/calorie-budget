@@ -4,9 +4,9 @@
             <flux:heading size="xl" class="mb-1">Daily Log</flux:heading>
             <flux:text>{{ \Illuminate\Support\Carbon::parse($date)->format('l, F j, Y') }}</flux:text>
         </div>
-        <flux:link href="{{ route('budget.summary') }}" wire:navigate class="text-sm">
+        <a href="{{ route('budget.summary') }}" wire:navigate class="text-sm text-zinc-700 transition-colors hover:text-zinc-500 dark:text-zinc-300 dark:hover:text-zinc-400">
             Weekly Summary &rarr;
-        </flux:link>
+        </a>
     </div>
 
     <div class="mb-6 flex items-center gap-2">
@@ -19,9 +19,9 @@
             :disabled="$this->isToday"
         >Next</flux:button>
         @if (! $this->isToday)
-            <flux:link href="{{ route('budget.log') }}" wire:navigate class="ml-2 text-sm">
+            <a href="{{ route('budget.log') }}" wire:navigate class="ml-2 text-sm text-zinc-700 transition-colors hover:text-zinc-500 dark:text-zinc-300 dark:hover:text-zinc-400">
                 Jump to today
-            </flux:link>
+            </a>
         @endif
     </div>
 
@@ -29,7 +29,7 @@
         <flux:callout variant="warning" icon="exclamation-triangle">
             <flux:callout.heading>No calorie setup found.</flux:callout.heading>
             <flux:callout.text>
-                <flux:link href="{{ route('budget.setup') }}" wire:navigate>Complete your setup</flux:link> before logging entries.
+                <a href="{{ route('budget.setup') }}" wire:navigate class="font-medium text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400">Complete your setup</a> before logging entries.
             </flux:callout.text>
         </flux:callout>
     @else

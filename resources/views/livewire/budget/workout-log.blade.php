@@ -4,9 +4,9 @@
             <flux:heading size="xl" class="mb-1">Workout Log</flux:heading>
             <flux:text>Track your workouts and activity.</flux:text>
         </div>
-        <flux:link href="{{ route('budget.log') }}" wire:navigate class="text-sm">
+        <a href="{{ route('budget.log') }}" wire:navigate class="text-sm text-zinc-700 transition-colors hover:text-zinc-500 dark:text-zinc-300 dark:hover:text-zinc-400">
             &larr; Daily Log
-        </flux:link>
+        </a>
     </div>
 
     {{-- Add workout form --}}
@@ -127,7 +127,7 @@
                 @foreach ($this->groupedEntries as $dateString => $dayEntries)
                     {{-- Date group header --}}
                     <flux:table.row>
-                        <flux:table.cell colspan="4" class="pt-4 pb-1">
+                        <flux:table.cell colspan="4" class="pt-6 pb-2">
                             <div class="flex items-center gap-2">
                                 <span class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
                                     {{ \Illuminate\Support\Carbon::parse($dateString)->format('D, M j, Y') }}

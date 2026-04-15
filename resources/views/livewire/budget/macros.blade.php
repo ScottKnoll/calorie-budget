@@ -15,7 +15,7 @@
             <flux:callout.heading>No calorie target set.</flux:callout.heading>
             <flux:callout.text>
                 Gram values will appear once you save a daily calorie target on the
-                <flux:link href="{{ route('budget.setup') }}" wire:navigate>Calorie Setup</flux:link> page.
+                <a href="{{ route('budget.setup') }}" wire:navigate class="font-medium text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400">Calorie Setup</a> page.
             </flux:callout.text>
         </flux:callout>
     @else

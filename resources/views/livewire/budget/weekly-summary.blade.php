@@ -19,17 +19,17 @@
         <flux:callout variant="warning" icon="exclamation-triangle">
             <flux:callout.heading>No calorie setup found.</flux:callout.heading>
             <flux:callout.text>
-                <flux:link href="{{ route('budget.setup') }}" wire:navigate>Complete your setup</flux:link> to see your weekly summary.
+                <a href="{{ route('budget.setup') }}" wire:navigate class="font-medium text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400">Complete your setup</a> to see your weekly summary.
             </flux:callout.text>
         </flux:callout>
     @else
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>Day</flux:table.column>
-                <flux:table.column class="text-right">Target</flux:table.column>
-                <flux:table.column class="text-right">Consumed</flux:table.column>
-                <flux:table.column class="text-right">Over / Under</flux:table.column>
-                <flux:table.column class="text-right">Running Balance</flux:table.column>
+                <flux:table.column>Target</flux:table.column>
+                <flux:table.column>Consumed</flux:table.column>
+                <flux:table.column>Over / Under</flux:table.column>
+                <flux:table.column>Running Balance</flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
@@ -45,29 +45,29 @@
 
                     <flux:table.row>
                         <flux:table.cell>
-                            <flux:link
+                            <a
                                 href="{{ route('budget.log', ['date' => $day['date']->toDateString()]) }}"
                                 wire:navigate
-                                class="{{ $isToday ? 'font-semibold' : '' }}"
-                            >{{ $day['date']->format('D, M j') }}</flux:link>
+                                class="text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400 {{ $isToday ? 'font-semibold' : '' }}"
+                            >{{ $day['date']->format('D, M j') }}</a>
                             @if ($isToday)
                                 <flux:badge size="sm" color="blue" inset="top bottom" class="ml-2">Today</flux:badge>
                             @endif
                         </flux:table.cell>
 
-                        <flux:table.cell class="text-right tabular-nums text-zinc-500">
+                        <flux:table.cell class="tabular-nums">
                             {{ number_format($this->profile->daily_calorie_target) }}
                         </flux:table.cell>
 
-                        <flux:table.cell class="text-right tabular-nums">
+                        <flux:table.cell variant="strong" class="tabular-nums">
                             @if ($day['calories_consumed'] !== null)
                                 {{ number_format($day['calories_consumed']) }}
                             @else
-                                <span class="text-zinc-400">—</span>
+                                <span class="font-normal text-zinc-400">—</span>
                             @endif
                         </flux:table.cell>
 
-                        <flux:table.cell class="text-right tabular-nums">
+                        <flux:table.cell class="tabular-nums">
                             @if ($day['over_under'] !== null)
                                 @if ($day['over_under'] > 0)
                                     <span class="font-medium text-red-500">+{{ number_format($day['over_under']) }}</span>
@@ -81,7 +81,7 @@
                             @endif
                         </flux:table.cell>
 
-                        <flux:table.cell class="text-right tabular-nums">
+                        <flux:table.cell class="tabular-nums">
                             @if ($day['over_under'] !== null)
                                 @if ($runningBalance > 0)
                                     <span class="font-medium text-red-500">+{{ number_format($runningBalance) }}</span>
@@ -100,7 +100,7 @@
                 {{-- Weekly total row --}}
                 <flux:table.row>
                     <flux:table.cell class="font-semibold" colspan="4">Weekly Total</flux:table.cell>
-                    <flux:table.cell class="text-right tabular-nums font-semibold">
+                    <flux:table.cell class="tabular-nums font-semibold">
                         @if ($this->weeklyBalance > 0)
                             <span class="text-red-500">+{{ number_format($this->weeklyBalance) }}</span>
                         @elseif ($this->weeklyBalance < 0)
@@ -143,9 +143,9 @@
         @endif
 
         <div class="mt-6">
-            <flux:link href="{{ route('budget.log') }}" wire:navigate>
+            <a href="{{ route('budget.log') }}" wire:navigate class="text-sm text-zinc-700 transition-colors hover:text-zinc-500 dark:text-zinc-300 dark:hover:text-zinc-400">
                 &larr; Back to today's log
-            </flux:link>
+            </a>
         </div>
     @endif
 </section>

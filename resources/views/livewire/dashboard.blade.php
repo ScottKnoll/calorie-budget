@@ -1,5 +1,5 @@
 <div>
-    <flux:heading size="xl" class="mb-1">Welcome back, {{ auth()->user()->name }}.</flux:heading>
+    <flux:heading size="xl" class="mb-1">Welcome back, {{ auth()->user()->name }}</flux:heading>
     <flux:text>Here's a quick look at where you stand today.</flux:text>
 
     <div class="mt-12 grid gap-4 sm:grid-cols-2">
@@ -31,10 +31,10 @@
                     </p>
                     <flux:text size="sm" class="mt-0.5 text-zinc-400">cal remaining today</flux:text>
                 </div>
-                <div class="mt-4 flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
-                    <span>{{ number_format($this->todaysEntry->calories_consumed) }} consumed</span>
-                    <flux:separator vertical />
-                    <span>{{ number_format($this->profile->daily_calorie_target) }} target</span>
+                <div class="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+                    {{ number_format($this->todaysEntry->calories_consumed) }} consumed
+                    &middot;
+                    {{ number_format($this->profile->daily_calorie_target) }} target
                 </div>
             @endif
         </a>
@@ -162,11 +162,11 @@
                     </div>
                 @endif
             @else
-                <div class="flex-1 space-y-1.5">
+                <dl class="flex-1 space-y-2">
                     @foreach ($this->todaysWorkouts as $workout)
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="font-medium text-zinc-800 dark:text-zinc-100">{{ $workout->typeLabel() }}</span>
-                            <span class="text-zinc-500 dark:text-zinc-400">
+                        <div class="flex items-center justify-between">
+                            <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">{{ $workout->typeLabel() }}</flux:text>
+                            <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
                                 {{ $workout->duration_minutes }} min
                                 @if ($workout->calories_burned)
                                     &middot; {{ number_format($workout->calories_burned) }} cal
@@ -174,7 +174,7 @@
                             </span>
                         </div>
                     @endforeach
-                </div>
+                </dl>
                 <div class="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
                     {{ $this->weeklyWorkoutCount }} workout{{ $this->weeklyWorkoutCount === 1 ? '' : 's' }} this week
                     @if ($this->weeklyCaloriesBurned > 0)
