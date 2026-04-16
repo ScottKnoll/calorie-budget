@@ -18,6 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->string('user_type')->default('personal');
+            $table->timestamp('intake_completed_at')->nullable();
             $table->timestamps();
         });
 

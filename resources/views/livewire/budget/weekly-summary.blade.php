@@ -45,13 +45,19 @@
 
                     <flux:table.row>
                         <flux:table.cell>
-                            <a
-                                href="{{ route('budget.log', ['date' => $day['date']->toDateString()]) }}"
-                                wire:navigate
-                                class="text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400 {{ $isToday ? 'font-semibold' : '' }}"
-                            >{{ $day['date']->format('D, M j') }}</a>
-                            @if ($isToday)
-                                <flux:badge size="sm" color="blue" inset="top bottom" class="ml-2">Today</flux:badge>
+                            @if ($day['date']->isFuture())
+                                <span class="text-zinc-400 dark:text-zinc-500 {{ $isToday ? 'font-semibold' : '' }}">
+                                    {{ $day['date']->format('D, M j') }}
+                                </span>
+                            @else
+                                <a
+                                    href="{{ route('budget.log', ['date' => $day['date']->toDateString()]) }}"
+                                    wire:navigate
+                                    class="text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400 {{ $isToday ? 'font-semibold' : '' }}"
+                                >{{ $day['date']->format('D, M j') }}</a>
+                                @if ($isToday)
+                                    <flux:badge size="sm" color="blue" inset="top bottom" class="ml-2">Today</flux:badge>
+                                @endif
                             @endif
                         </flux:table.cell>
 

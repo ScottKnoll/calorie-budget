@@ -7,6 +7,9 @@
 
         <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-6">
             @csrf
+            @if (request('type'))
+                <input type="hidden" name="type" value="{{ request('type') }}">
+            @endif
             <!-- Name -->
             <flux:input
                 name="name"
