@@ -50,7 +50,7 @@ class Setup extends Component
 
     public function mount(): void
     {
-        $profile = auth()->user()->calorieProfile;
+        $profile = auth()->user()?->calorieProfile;
 
         if ($profile) {
             $this->gender = $profile->gender->value;
@@ -188,6 +188,12 @@ class Setup extends Component
 
     public function save(): void
     {
+        if (! auth()->check()) {
+            $this->redirect(route('register'), navigate: true);
+
+            return;
+        }
+
         $isLeanMass = $this->formula === FormulaType::LeanMass->value;
 
         $validated = $this->validate([

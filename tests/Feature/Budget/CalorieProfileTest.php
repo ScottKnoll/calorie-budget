@@ -26,8 +26,14 @@ function withMeasurements($component): mixed
         ->set('exercise_factor', 'none');
 }
 
-it('redirects guests away from the setup page', function () {
-    $this->get(route('budget.setup'))->assertRedirect(route('login'));
+it('shows the setup page to guests', function () {
+    $this->get(route('budget.setup'))->assertSuccessful();
+});
+
+it('redirects guests to the register page when they try to save settings', function () {
+    Livewire::test(Setup::class)
+        ->call('save')
+        ->assertRedirect(route('register'));
 });
 
 it('shows the setup page to authenticated users', function () {

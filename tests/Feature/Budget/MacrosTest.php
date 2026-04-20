@@ -6,8 +6,14 @@ use App\Models\CalorieProfile;
 use App\Models\User;
 use Livewire\Livewire;
 
-it('redirects guests away from the macros page', function () {
-    $this->get(route('budget.macros'))->assertRedirect(route('login'));
+it('shows the macros page to guests', function () {
+    $this->get(route('budget.macros'))->assertSuccessful();
+});
+
+it('redirects guests to the register page when they try to save macros', function () {
+    Livewire::test(Macros::class)
+        ->call('save')
+        ->assertRedirect(route('register'));
 });
 
 it('shows the macros page to authenticated users', function () {

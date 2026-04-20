@@ -20,9 +20,11 @@ class Macros extends Component
 
     public int $fat_pct = 20;
 
+    public int $guestCalorieTarget = 0;
+
     public function mount(): void
     {
-        $profile = auth()->user()->calorieProfile;
+        $profile = auth()->user()?->calorieProfile;
 
         if ($profile && $profile->macro_preset !== null) {
             $this->macro_preset = $profile->macro_preset->value;
@@ -35,6 +37,10 @@ class Macros extends Component
     #[Computed]
     public function dailyCalorieTarget(): int
     {
+        if (! auth()->check()) {
+            return $this->guestCalorieTarget;
+        }
+
         return auth()->user()->calorieProfile?->daily_calorie_target ?? 0;
     }
 
@@ -112,6 +118,12 @@ class Macros extends Component
 
     public function save(): void
     {
+        if (! auth()->check()) {
+            $this->redirect(route('register'), navigate: true);
+
+            return;
+        }
+
         $this->validate([
             'macro_preset' => ['nullable', new Enum(MacroPreset::class)],
             'carb_pct' => ['required', 'integer', 'min:0', 'max:100'],

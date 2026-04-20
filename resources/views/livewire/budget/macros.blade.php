@@ -10,7 +10,18 @@
         </flux:callout>
     @endif
 
+    @guest
+        <flux:card class="mb-6">
+            <flux:field>
+                <flux:label>Your Daily Calorie Target</flux:label>
+                <flux:description>Enter your daily calorie target to see gram values. Use the <a href="{{ route('budget.setup') }}" wire:navigate class="font-medium text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400">Calorie Setup</a> page to calculate it.</flux:description>
+                <flux:input wire:model.live="guestCalorieTarget" type="number" min="500" max="9999" placeholder="2000" suffix="cal" class="max-w-xs" />
+            </flux:field>
+        </flux:card>
+    @endguest
+
     @if ($this->dailyCalorieTarget === 0)
+        @auth
         <flux:callout variant="warning" icon="exclamation-triangle" class="mb-6">
             <flux:callout.heading>No calorie target set.</flux:callout.heading>
             <flux:callout.text>
@@ -18,6 +29,7 @@
                 <a href="{{ route('budget.setup') }}" wire:navigate class="font-medium text-zinc-800 transition-colors hover:text-zinc-500 dark:text-zinc-200 dark:hover:text-zinc-400">Calorie Setup</a> page.
             </flux:callout.text>
         </flux:callout>
+        @endauth
     @else
         <flux:card class="mb-6 bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:border-blue-800">
             <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Based on your daily target</flux:text>
@@ -151,13 +163,27 @@
         </flux:card>
 
         <div class="flex justify-end pb-2">
-            <flux:button
-                type="submit"
-                variant="primary"
-                :disabled="$this->macroTotal !== 100"
-            >
-                Save Macros
-            </flux:button>
+            @auth
+                <flux:button
+                    type="submit"
+                    variant="primary"
+                    :disabled="$this->macroTotal !== 100"
+                >
+                    Save Macros
+                </flux:button>
+            @else
+                <div class="flex items-center gap-3">
+                    <flux:text class="text-zinc-500 dark:text-zinc-400 text-sm">Sign up to save your macros</flux:text>
+                    <flux:button
+                        type="button"
+                        variant="primary"
+                        :disabled="$this->macroTotal !== 100"
+                        wire:click="save"
+                    >
+                        Sign up &amp; save
+                    </flux:button>
+                </div>
+            @endauth
         </div>
     </form>
 </section>

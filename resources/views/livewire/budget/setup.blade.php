@@ -232,7 +232,14 @@
         </flux:card>
 
         <div class="flex justify-end pb-2">
-            <flux:button type="submit" variant="primary">Save Settings</flux:button>
+            @auth
+                <flux:button type="submit" variant="primary">Save Settings</flux:button>
+            @else
+                <div class="flex items-center gap-3">
+                    <flux:text class="text-zinc-500 dark:text-zinc-400 text-sm">Sign up to save your settings</flux:text>
+                    <flux:button type="button" variant="primary" wire:click="save">Sign up &amp; save</flux:button>
+                </div>
+            @endauth
         </div>
     </form>
 </section>
