@@ -1,6 +1,6 @@
 <section class="w-full max-w-2xl">
     <div class="mb-8">
-        <flux:heading size="xl">Welcome — Let's Get Started</flux:heading>
+        <flux:heading size="xl">Welcome, {{ Str::of(auth()->user()->name)->before(' ') }} — Let's Get Started</flux:heading>
         <flux:text class="mt-1">Take a few minutes to fill out this intake form so we can understand your goals and build the right plan for you.</flux:text>
     </div>
 
@@ -13,7 +13,7 @@
             <div class="space-y-4">
                 <flux:field>
                     <flux:label>What's your main goal?</flux:label>
-                    <flux:select wire:model="main_goal">
+                    <flux:select wire:model.live="main_goal">
                         <flux:select.option value="">— Select a goal —</flux:select.option>
                         @foreach ($this->mainGoalOptions() as $value => $label)
                             <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
@@ -22,60 +22,18 @@
                     <flux:error name="main_goal" />
                 </flux:field>
 
+                @if ($main_goal === 'other')
+                    <flux:field>
+                        <flux:label>Please describe your goal</flux:label>
+                        <flux:input wire:model="main_goal_other" type="text" placeholder="e.g. Improve my relationship with food..." maxlength="200" />
+                        <flux:error name="main_goal_other" />
+                    </flux:field>
+                @endif
+
                 <flux:field>
                     <flux:label>Why now? <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
                     <flux:textarea wire:model="why_now" placeholder="What's motivating you to make a change at this point in your life?" rows="3" />
                     <flux:error name="why_now" />
-                </flux:field>
-            </div>
-        </div>
-
-        <flux:separator />
-
-        {{-- CURRENT STATE --}}
-        <div>
-            <flux:heading size="lg" class="mb-1">Current State</flux:heading>
-            <flux:text class="mb-4 text-sm text-zinc-500 dark:text-zinc-400">Weight and height are optional but help us build a more accurate plan.</flux:text>
-
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                    <flux:field>
-                        <flux:label>Weight (lbs) <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
-                        <flux:input wire:model="current_weight_lbs" type="number" min="50" max="1500" placeholder="e.g. 175" />
-                        <flux:error name="current_weight_lbs" />
-                    </flux:field>
-
-                    <flux:field>
-                        <flux:label>Height (ft) <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
-                        <flux:input wire:model="current_height_feet" type="number" min="1" max="9" placeholder="e.g. 5" />
-                        <flux:error name="current_height_feet" />
-                    </flux:field>
-
-                    <flux:field>
-                        <flux:label>Height (in)</flux:label>
-                        <flux:input wire:model="current_height_inches" type="number" min="0" max="11" placeholder="e.g. 10" />
-                        <flux:error name="current_height_inches" />
-                    </flux:field>
-                </div>
-
-                <flux:field>
-                    <flux:label>Current activity level (outside the gym)</flux:label>
-                    <flux:select wire:model="activity_level">
-                        @foreach ($this->activityLevelOptions() as $value => $label)
-                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                    <flux:error name="activity_level" />
-                </flux:field>
-
-                <flux:field>
-                    <flux:label>Workout experience</flux:label>
-                    <flux:select wire:model="workout_experience">
-                        @foreach ($this->workoutExperienceOptions() as $value => $label)
-                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                    <flux:error name="workout_experience" />
                 </flux:field>
             </div>
         </div>
@@ -148,13 +106,32 @@
 
                 <flux:field>
                     <flux:label>Describe a typical day of eating <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
+                    <flux:description>Doesn't have to be perfect — just a rough idea.</flux:description>
                     <flux:textarea wire:model="typical_day_of_eating" placeholder="e.g. Coffee and eggs in the morning, sandwich at lunch, pasta for dinner, snack on chips..." rows="3" />
                     <flux:error name="typical_day_of_eating" />
                 </flux:field>
 
                 <flux:field>
+                    <flux:label>Dietary preference</flux:label>
+                    <flux:select wire:model.live="dietary_preference">
+                        @foreach ($this->dietaryPreferenceOptions() as $value => $label)
+                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="dietary_preference" />
+                </flux:field>
+
+                @if ($dietary_preference === 'other')
+                    <flux:field>
+                        <flux:label>Please describe your dietary preference</flux:label>
+                        <flux:input wire:model="dietary_preference_other" type="text" placeholder="e.g. Mostly plant-based but eat fish occasionally..." maxlength="200" />
+                        <flux:error name="dietary_preference_other" />
+                    </flux:field>
+                @endif
+
+                <flux:field>
                     <flux:label>Any dietary restrictions or allergies? <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
-                    <flux:textarea wire:model="dietary_restrictions" placeholder="e.g. lactose intolerant, vegetarian, gluten-free..." rows="2" />
+                    <flux:textarea wire:model="dietary_restrictions" placeholder="e.g. lactose intolerant, gluten-free..." rows="2" />
                     <flux:error name="dietary_restrictions" />
                 </flux:field>
             </div>
@@ -185,6 +162,12 @@
                         @endforeach
                     </flux:select>
                     <flux:error name="open_to_tracking" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:label>What has made it hard to stay consistent in the past? <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
+                    <flux:textarea wire:model="past_consistency_struggles" placeholder="e.g. busy schedule, travel, lack of motivation, not knowing what to eat..." rows="3" />
+                    <flux:error name="past_consistency_struggles" />
                 </flux:field>
             </div>
         </div>

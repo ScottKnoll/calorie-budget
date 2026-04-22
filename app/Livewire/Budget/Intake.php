@@ -13,19 +13,11 @@ class Intake extends Component
     // Goal
     public string $main_goal = '';
 
+    public string $main_goal_other = '';
+
     public string $why_now = '';
 
     // Current state
-    public ?int $current_weight_lbs = null;
-
-    public ?int $current_height_feet = null;
-
-    public int $current_height_inches = 0;
-
-    public string $activity_level = 'sedentary';
-
-    public string $workout_experience = 'beginner';
-
     // Lifestyle
     public string $work_schedule = 'nine_to_five';
 
@@ -42,10 +34,17 @@ class Intake extends Component
 
     public string $dietary_restrictions = '';
 
+    // Nutrition
+    public string $dietary_preference = 'none';
+
+    public string $dietary_preference_other = '';
+
     // Expectations
     public string $workout_days_per_week = 'three_four';
 
-    public string $open_to_tracking = 'loosely';
+    public string $open_to_tracking = 'yes_comfortable';
+
+    public string $past_consistency_struggles = '';
 
     public function mount(): void
     {
@@ -66,26 +65,6 @@ class Intake extends Component
             'energy' => 'More energy',
             'strength' => 'Build strength',
             'other' => 'Other',
-        ];
-    }
-
-    public function activityLevelOptions(): array
-    {
-        return [
-            'sedentary' => 'Sedentary (desk job, little movement)',
-            'lightly_active' => 'Lightly active (some walking, light daily movement)',
-            'moderately_active' => 'Moderately active (on your feet most of the day)',
-            'very_active' => 'Very active (physically demanding job)',
-            'extra_active' => 'Extra active (extremely demanding physical job)',
-        ];
-    }
-
-    public function workoutExperienceOptions(): array
-    {
-        return [
-            'beginner' => 'Beginner (just starting out)',
-            'intermediate' => 'Intermediate (1–3 years consistent training)',
-            'advanced' => 'Advanced (3+ years, structured programming)',
         ];
     }
 
@@ -151,9 +130,23 @@ class Intake extends Component
     public function openToTrackingOptions(): array
     {
         return [
-            'yes' => 'Yes, fully committed',
-            'loosely' => 'Loosely — I\'ll try',
-            'no' => 'No, prefer not to',
+            'yes_comfortable' => 'Yes — I\'m comfortable tracking',
+            'open_to_trying' => 'Open to trying',
+            'simpler_approach' => 'Prefer a simpler approach',
+        ];
+    }
+
+    public function dietaryPreferenceOptions(): array
+    {
+        return [
+            'none' => 'None',
+            'vegetarian' => 'Vegetarian',
+            'vegan' => 'Vegan',
+            'pescatarian' => 'Pescatarian',
+            'paleo' => 'Paleo',
+            'keto' => 'Keto',
+            'carnivore' => 'Carnivore',
+            'other' => 'Other',
         ];
     }
 
@@ -161,12 +154,8 @@ class Intake extends Component
     {
         $validated = $this->validate([
             'main_goal' => ['required', 'string', 'in:fat_loss,consistency,energy,strength,other'],
+            'main_goal_other' => [$this->main_goal === 'other' ? 'required' : 'nullable', 'string', 'max:200'],
             'why_now' => ['nullable', 'string', 'max:1000'],
-            'current_weight_lbs' => ['nullable', 'integer', 'min:50', 'max:1500'],
-            'current_height_feet' => ['nullable', 'integer', 'min:1', 'max:9'],
-            'current_height_inches' => ['nullable', 'integer', 'min:0', 'max:11'],
-            'activity_level' => ['required', 'string', 'in:sedentary,lightly_active,moderately_active,very_active,extra_active'],
-            'workout_experience' => ['required', 'string', 'in:beginner,intermediate,advanced'],
             'work_schedule' => ['required', 'string', 'in:nine_to_five,shift_work,remote,stay_at_home,other'],
             'daily_steps' => ['required', 'string', 'in:low,moderate,high'],
             'sleep_hours' => ['required', 'string', 'in:under_six,six_to_seven,seven_to_eight,eight_plus'],
@@ -174,8 +163,11 @@ class Intake extends Component
             'tracks_currently' => ['required', 'string', 'in:yes,no,loosely'],
             'typical_day_of_eating' => ['nullable', 'string', 'max:2000'],
             'dietary_restrictions' => ['nullable', 'string', 'max:500'],
+            'dietary_preference' => ['nullable', 'string', 'in:none,vegetarian,vegan,pescatarian,paleo,keto,carnivore,other'],
+            'dietary_preference_other' => [$this->dietary_preference === 'other' ? 'required' : 'nullable', 'string', 'max:200'],
             'workout_days_per_week' => ['required', 'string', 'in:one_two,three_four,five_six,every_day'],
-            'open_to_tracking' => ['required', 'string', 'in:yes,no,loosely'],
+            'open_to_tracking' => ['required', 'string', 'in:yes_comfortable,open_to_trying,simpler_approach'],
+            'past_consistency_struggles' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $user = auth()->user();

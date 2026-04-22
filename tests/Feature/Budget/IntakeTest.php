@@ -125,11 +125,6 @@ it('saves the intake response and marks user intake as completed', function () {
         ->test(Intake::class)
         ->set('main_goal', 'fat_loss')
         ->set('why_now', 'Ready to make a change.')
-        ->set('current_weight_lbs', 200)
-        ->set('current_height_feet', 5)
-        ->set('current_height_inches', 10)
-        ->set('activity_level', 'sedentary')
-        ->set('workout_experience', 'beginner')
         ->set('work_schedule', 'nine_to_five')
         ->set('daily_steps', 'low')
         ->set('sleep_hours', 'seven_to_eight')
@@ -138,15 +133,13 @@ it('saves the intake response and marks user intake as completed', function () {
         ->set('typical_day_of_eating', 'Coffee, sandwich, pasta.')
         ->set('dietary_restrictions', 'None')
         ->set('workout_days_per_week', 'three_four')
-        ->set('open_to_tracking', 'loosely')
+        ->set('open_to_tracking', 'open_to_trying')
         ->call('submit')
         ->assertRedirect(route('budget.setup'));
 
     $intake = IntakeResponse::where('user_id', $client->id)->first();
     expect($intake)->not->toBeNull();
     expect($intake->main_goal)->toBe('fat_loss');
-    expect($intake->activity_level)->toBe('sedentary');
-    expect($intake->current_weight_lbs)->toBe(200);
 
     expect($client->fresh()->hasCompletedIntake())->toBeTrue();
 });

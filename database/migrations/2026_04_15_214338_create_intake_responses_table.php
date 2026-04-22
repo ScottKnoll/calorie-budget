@@ -14,15 +14,10 @@ return new class extends Migration
 
             // Goal
             $table->string('main_goal');
+            $table->string('main_goal_other')->nullable();
             $table->text('why_now')->nullable();
 
             // Current state
-            $table->unsignedSmallInteger('current_weight_lbs')->nullable();
-            $table->unsignedTinyInteger('current_height_feet')->nullable();
-            $table->unsignedTinyInteger('current_height_inches')->nullable();
-            $table->string('activity_level');
-            $table->string('workout_experience');
-
             // Lifestyle
             $table->string('work_schedule');
             $table->string('daily_steps');
@@ -33,10 +28,13 @@ return new class extends Migration
             $table->string('tracks_currently');
             $table->text('typical_day_of_eating')->nullable();
             $table->text('dietary_restrictions')->nullable();
+            $table->string('dietary_preference')->nullable();
+            $table->string('dietary_preference_other')->nullable();
 
             // Expectations
             $table->string('workout_days_per_week');
             $table->string('open_to_tracking');
+            $table->text('past_consistency_struggles')->nullable();
 
             $table->timestamps();
         });
