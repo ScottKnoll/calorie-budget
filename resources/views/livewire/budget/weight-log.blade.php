@@ -19,7 +19,7 @@
     @else
 
         {{-- Summary stat cards --}}
-        <div class="mb-6 grid grid-cols-3 gap-3">
+        <div class="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
                 <flux:text class="mb-1 text-xs uppercase tracking-wide text-zinc-500">Current</flux:text>
                 <p class="text-2xl font-semibold tabular-nums">{{ number_format($this->latestEntry->weight_lbs, 1) }}</p>

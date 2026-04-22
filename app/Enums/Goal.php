@@ -11,9 +11,9 @@ enum Goal: string
     public function label(): string
     {
         return match ($this) {
-            Goal::Cut => 'Cut',
+            Goal::Cut => 'Weight Loss',
             Goal::Maintain => 'Maintain',
-            Goal::Bulk => 'Bulk',
+            Goal::Bulk => 'Weight Gain',
         };
     }
 }

@@ -19,8 +19,8 @@ return new class extends Migration
             $table->unsignedTinyInteger('age');
             $table->unsignedTinyInteger('height_feet');
             $table->unsignedTinyInteger('height_inches')->default(0);
-            $table->unsignedSmallInteger('weight_lbs');
-            $table->unsignedSmallInteger('goal_weight_lbs')->nullable();
+            $table->decimal('weight_lbs', 5, 1);
+            $table->decimal('goal_weight_lbs', 5, 1)->nullable();
             $table->date('start_date')->nullable();
             $table->unsignedTinyInteger('calorie_deficit_pct')->default(20);
             $table->string('activity_factor')->default(ActivityFactor::Sedentary->value);

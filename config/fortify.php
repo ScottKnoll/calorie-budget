@@ -145,8 +145,8 @@ return [
 
     'features' => [
         Features::registration(),
-        Features::resetPasswords(),
-        Features::emailVerification(),
+        // Features::resetPasswords(),   // requires mailer — enable when email is configured
+        // Features::emailVerification(), // requires MustVerifyEmail on User model
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,

@@ -11,7 +11,7 @@
 
     {{-- Add workout form --}}
     <form wire:submit="addEntry" class="mb-10 space-y-5">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <flux:field>
                 <flux:label>Date</flux:label>
                 <flux:input type="date" wire:model="date" required />
@@ -43,7 +43,7 @@
             </flux:field>
         @endif
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <flux:field>
                 <flux:label>Duration (min)</flux:label>
                 <flux:input

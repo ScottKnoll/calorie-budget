@@ -24,15 +24,17 @@ class Setup extends Component
 
     public ?int $height_feet = null;
 
-    public int $height_inches = 0;
+    public ?int $height_inches = null;
 
-    public ?int $weight_lbs = null;
+    public ?float $weight_lbs = null;
 
-    public ?int $goal_weight_lbs = null;
+    public ?float $goal_weight_lbs = null;
 
     public ?string $start_date = null;
 
     public int $calorie_deficit_pct = 20;
+
+    public string $deficit_preset = '20';
 
     public string $activity_factor = 'sedentary';
 
@@ -61,6 +63,9 @@ class Setup extends Component
             $this->goal_weight_lbs = $profile->goal_weight_lbs;
             $this->start_date = $profile->start_date?->toDateString();
             $this->calorie_deficit_pct = $profile->calorie_deficit_pct;
+            $this->deficit_preset = in_array($profile->calorie_deficit_pct, [20, 25, 30])
+                ? (string) $profile->calorie_deficit_pct
+                : 'custom';
             $this->activity_factor = $profile->activity_factor->value;
             $this->exercise_factor = $profile->exercise_factor->value;
             $this->formula = $profile->formula->value;
@@ -99,7 +104,7 @@ class Setup extends Component
             Gender::from($this->gender),
             $this->age ?? 0,
             $this->height_feet ?? 0,
-            $this->height_inches,
+            $this->height_inches ?? 0,
             $this->weight_lbs,
             ActivityFactor::from($this->activity_factor),
             ExerciseFactor::from($this->exercise_factor),
@@ -135,7 +140,7 @@ class Setup extends Component
             Gender::from($this->gender),
             $this->age ?? 0,
             $this->height_feet ?? 0,
-            $this->height_inches,
+            $this->height_inches ?? 0,
             $this->weight_lbs,
             $formula,
             $this->body_fat_pct,
@@ -171,6 +176,14 @@ class Setup extends Component
         return now()->addDays($this->computedDaysToGoal)->format('M j, Y');
     }
 
+    public function updatedDeficitPreset(string $value): void
+    {
+        if ($value !== 'custom') {
+            $this->calorie_deficit_pct = (int) $value;
+            $this->syncSuggestedTarget();
+        }
+    }
+
     public function updated(string $property): void
     {
         $tdeeProps = [
@@ -200,9 +213,9 @@ class Setup extends Component
             'gender' => ['required', new Enum(Gender::class)],
             'age' => [$isLeanMass ? 'nullable' : 'required', 'integer', 'min:1', 'max:120'],
             'height_feet' => [$isLeanMass ? 'nullable' : 'required', 'integer', 'min:1', 'max:9'],
-            'height_inches' => ['required', 'integer', 'min:0', 'max:11'],
-            'weight_lbs' => ['required', 'integer', 'min:50', 'max:1500'],
-            'goal_weight_lbs' => ['nullable', 'integer', 'min:50', 'max:1500'],
+            'height_inches' => ['nullable', 'integer', 'min:0', 'max:11'],
+            'weight_lbs' => ['required', 'numeric', 'min:50', 'max:1500'],
+            'goal_weight_lbs' => ['nullable', 'numeric', 'min:50', 'max:1500'],
             'start_date' => ['nullable', 'date'],
             'calorie_deficit_pct' => ['required', 'integer', 'min:5', 'max:50'],
             'activity_factor' => ['required', new Enum(ActivityFactor::class)],
@@ -214,6 +227,8 @@ class Setup extends Component
         ]);
 
         $tdee = $this->computedTdee;
+
+        $validated['height_inches'] ??= 0;
 
         CalorieProfile::updateOrCreate(
             ['user_id' => auth()->id()],
@@ -235,6 +250,16 @@ class Setup extends Component
         return collect(Gender::cases())
             ->mapWithKeys(fn (Gender $g) => [$g->value => $g->label()])
             ->all();
+    }
+
+    public function deficitPresetOptions(): array
+    {
+        return [
+            '20' => '20% Suggested',
+            '25' => '25% Aggressive',
+            '30' => '30% Reckless',
+            'custom' => 'Custom',
+        ];
     }
 
     public function goalOptions(): array

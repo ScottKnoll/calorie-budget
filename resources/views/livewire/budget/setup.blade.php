@@ -35,7 +35,7 @@
 
                 @if ($goal === 'cut' || $goal === 'bulk')
                     <div>
-                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">{{ $goal === 'cut' ? 'Deficit' : 'Surplus' }}</flux:text>
+                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">{{ $goal === 'cut' ? 'Calorie Deficit' : 'Calorie Surplus' }}</flux:text>
                         <p class="mt-0.5 text-2xl font-bold tracking-tight {{ $goal === 'cut' ? 'text-red-500' : 'text-emerald-500' }}">
                             {{ $goal === 'cut' ? '−' : '+' }}{{ number_format(abs($this->computedTdee - $this->computedDailyTarget)) }}
                         </p>
@@ -94,7 +94,7 @@
                     @if ($formula === 'standard')
                         <flux:field>
                             <flux:label>Age</flux:label>
-                            <flux:input wire:model.live="age" type="number" min="1" max="120" placeholder="30" />
+                            <flux:input wire:model.live.debounce.500ms="age" type="number" min="1" max="120" placeholder="30" />
                             <flux:error name="age" />
                         </flux:field>
                     @endif
@@ -105,10 +105,10 @@
                         <flux:label>Height</flux:label>
                         <div class="flex gap-2">
                             <div class="flex-1">
-                                <flux:input wire:model.live="height_feet" type="number" min="1" max="9" placeholder="5" suffix="ft" />
+                                <flux:input wire:model.live.debounce.500ms="height_feet" type="number" min="1" max="9" placeholder="5" suffix="ft" />
                             </div>
                             <div class="flex-1">
-                                <flux:input wire:model.live="height_inches" type="number" min="0" max="11" placeholder="0" suffix="in" />
+                                <flux:input wire:model.live.debounce.500ms="height_inches" type="number" min="0" max="11" placeholder="8" suffix="in" />
                             </div>
                         </div>
                         <flux:error name="height_feet" />
@@ -119,14 +119,14 @@
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <flux:field>
                         <flux:label>Current Weight</flux:label>
-                        <flux:input wire:model.live="weight_lbs" type="number" min="50" max="1500" placeholder="170" suffix="lbs" />
+                        <flux:input wire:model.live.debounce.500ms="weight_lbs" type="number" min="50" max="1500" step="0.1" placeholder="170.5" suffix="lbs" />
                         <flux:error name="weight_lbs" />
                     </flux:field>
 
                     @if ($formula === 'lean_mass')
                         <flux:field>
                             <flux:label>Body Fat %</flux:label>
-                            <flux:input wire:model.live="body_fat_pct" type="number" min="1" max="70" step="0.1" placeholder="15.0" suffix="%" />
+                            <flux:input wire:model.live.debounce.500ms="body_fat_pct" type="number" min="1" max="70" step="0.1" placeholder="15.0" suffix="%" />
                             <flux:error name="body_fat_pct" />
                         </flux:field>
                     @endif
@@ -184,16 +184,27 @@
                     @if ($goal !== 'maintain')
                         <flux:field>
                             <flux:label>{{ $goal === 'cut' ? 'Deficit' : 'Surplus' }} Percentage</flux:label>
-                            <flux:input wire:model.live="calorie_deficit_pct" type="number" min="5" max="50" suffix="%" />
+                            <flux:select wire:model.live="deficit_preset">
+                                @foreach ($this->deficitPresetOptions() as $value => $label)
+                                    <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                                @endforeach
+                            </flux:select>
                             <flux:error name="calorie_deficit_pct" />
                         </flux:field>
+                        @if ($deficit_preset === 'custom')
+                            <flux:field>
+                                <flux:label>Custom Percentage</flux:label>
+                                <flux:input wire:model.live.debounce.500ms="calorie_deficit_pct" type="number" min="5" max="50" suffix="%" />
+                                <flux:error name="calorie_deficit_pct" />
+                            </flux:field>
+                        @endif
                     @endif
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <flux:field>
                         <flux:label>Goal Weight <flux:badge size="sm" variant="outline" class="ml-1">optional</flux:badge></flux:label>
-                        <flux:input wire:model.live="goal_weight_lbs" type="number" min="50" max="1500" placeholder="150" suffix="lbs" />
+                        <flux:input wire:model.live.debounce.500ms="goal_weight_lbs" type="number" min="50" max="1500" step="0.1" placeholder="150" suffix="lbs" />
                         <flux:error name="goal_weight_lbs" />
                     </flux:field>
 

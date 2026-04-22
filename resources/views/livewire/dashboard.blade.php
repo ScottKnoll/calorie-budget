@@ -29,12 +29,12 @@
                     <p class="text-3xl font-bold tracking-tight {{ $this->remainingToday >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500' }}">
                         {{ $this->remainingToday >= 0 ? '' : '−' }}{{ number_format(abs($this->remainingToday)) }}
                     </p>
-                    <flux:text size="sm" class="mt-0.5 text-zinc-400">cal remaining today</flux:text>
+                    <flux:text size="sm" class="mt-0.5 text-zinc-400">{{ $this->remainingToday >= 0 ? 'cal remaining today' : 'cal over today' }}</flux:text>
                 </div>
-                <div class="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-                    {{ number_format($this->todaysEntry->calories_consumed) }} consumed
-                    &middot;
-                    {{ number_format($this->profile->daily_calorie_target) }} target
+                <div class="mt-4 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                    <span>{{ number_format($this->todaysEntry->calories_consumed) }} consumed</span>
+                    <flux:separator vertical />
+                    <span>{{ number_format($this->profile->daily_calorie_target) }} target</span>
                 </div>
             @endif
         </a>

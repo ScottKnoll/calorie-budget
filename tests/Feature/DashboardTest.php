@@ -138,7 +138,7 @@ it('returns the goal label from the profile', function () {
 
     $component = Livewire::actingAs($user)->test(Dashboard::class);
 
-    expect($component->get('goalLabel'))->toBe('Cut');
+    expect($component->get('goalLabel'))->toBe('Weight Loss');
 });
 
 it('returns null for goalLabel when no profile exists', function () {
