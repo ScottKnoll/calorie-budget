@@ -15,6 +15,14 @@ class RegisterResponse implements RegisterResponseContract
             return redirect()->route('budget.intake');
         }
 
+        if (session()->has('macros_prefill')) {
+            return redirect()->route('budget.macros');
+        }
+
+        if (session()->has('setup_prefill')) {
+            return redirect()->route('budget.setup');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 }

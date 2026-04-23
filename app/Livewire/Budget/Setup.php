@@ -72,6 +72,18 @@ class Setup extends Component
             $this->body_fat_pct = $profile->body_fat_pct;
             $this->goal = $profile->goal->value;
             $this->daily_calorie_target = $profile->daily_calorie_target;
+        } elseif (auth()->check() && session()->has('setup_prefill')) {
+            $prefill = session()->pull('setup_prefill');
+
+            foreach ($prefill as $key => $value) {
+                if (property_exists($this, $key)) {
+                    $this->$key = $value;
+                }
+            }
+
+            $this->save();
+
+            return;
         } else {
             $this->daily_calorie_target = 0;
         }
@@ -202,6 +214,24 @@ class Setup extends Component
     public function save(): void
     {
         if (! auth()->check()) {
+            session(['setup_prefill' => [
+                'gender' => $this->gender,
+                'age' => $this->age,
+                'height_feet' => $this->height_feet,
+                'height_inches' => $this->height_inches,
+                'weight_lbs' => $this->weight_lbs,
+                'goal_weight_lbs' => $this->goal_weight_lbs,
+                'start_date' => $this->start_date,
+                'calorie_deficit_pct' => $this->calorie_deficit_pct,
+                'deficit_preset' => $this->deficit_preset,
+                'activity_factor' => $this->activity_factor,
+                'exercise_factor' => $this->exercise_factor,
+                'formula' => $this->formula,
+                'body_fat_pct' => $this->body_fat_pct,
+                'goal' => $this->goal,
+                'daily_calorie_target' => $this->daily_calorie_target,
+            ]]);
+
             $this->redirect(route('register'), navigate: true);
 
             return;

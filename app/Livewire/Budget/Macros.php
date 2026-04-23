@@ -31,6 +31,16 @@ class Macros extends Component
             $this->carb_pct = $profile->carb_pct;
             $this->protein_pct = $profile->protein_pct;
             $this->fat_pct = $profile->fat_pct;
+        } elseif ($profile && session()->has('macros_prefill')) {
+            $prefill = session()->pull('macros_prefill');
+
+            $this->macro_preset = $prefill['macro_preset'];
+            $this->carb_pct = $prefill['carb_pct'];
+            $this->protein_pct = $prefill['protein_pct'];
+            $this->fat_pct = $prefill['fat_pct'];
+            $this->guestCalorieTarget = $prefill['guestCalorieTarget'];
+
+            $this->save();
         }
     }
 
@@ -119,6 +129,14 @@ class Macros extends Component
     public function save(): void
     {
         if (! auth()->check()) {
+            session(['macros_prefill' => [
+                'macro_preset' => $this->macro_preset,
+                'carb_pct' => $this->carb_pct,
+                'protein_pct' => $this->protein_pct,
+                'fat_pct' => $this->fat_pct,
+                'guestCalorieTarget' => $this->guestCalorieTarget,
+            ]]);
+
             $this->redirect(route('register'), navigate: true);
 
             return;
