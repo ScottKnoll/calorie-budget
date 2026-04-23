@@ -21,6 +21,8 @@ class Intake extends Component
     // Lifestyle
     public string $work_schedule = 'nine_to_five';
 
+    public string $work_schedule_other = '';
+
     public string $daily_steps = 'moderate';
 
     public string $sleep_hours = 'seven_to_eight';
@@ -157,6 +159,7 @@ class Intake extends Component
             'main_goal_other' => [$this->main_goal === 'other' ? 'required' : 'nullable', 'string', 'max:200'],
             'why_now' => ['nullable', 'string', 'max:1000'],
             'work_schedule' => ['required', 'string', 'in:nine_to_five,shift_work,remote,stay_at_home,other'],
+            'work_schedule_other' => [$this->work_schedule === 'other' ? 'required' : 'nullable', 'string', 'max:200'],
             'daily_steps' => ['required', 'string', 'in:low,moderate,high'],
             'sleep_hours' => ['required', 'string', 'in:under_six,six_to_seven,seven_to_eight,eight_plus'],
             'stress_level' => ['required', 'string', 'in:low,moderate,high,very_high'],

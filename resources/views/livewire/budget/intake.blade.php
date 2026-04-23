@@ -47,13 +47,21 @@
             <div class="space-y-4">
                 <flux:field>
                     <flux:label>Work schedule</flux:label>
-                    <flux:select wire:model="work_schedule">
+                    <flux:select wire:model.live="work_schedule">
                         @foreach ($this->workScheduleOptions() as $value => $label)
                             <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                         @endforeach
                     </flux:select>
                     <flux:error name="work_schedule" />
                 </flux:field>
+
+                @if ($work_schedule === 'other')
+                    <flux:field>
+                        <flux:label>Please describe your work schedule</flux:label>
+                        <flux:input wire:model="work_schedule_other" type="text" placeholder="e.g. Freelance, rotating shifts..." maxlength="200" />
+                        <flux:error name="work_schedule_other" />
+                    </flux:field>
+                @endif
 
                 <flux:field>
                     <flux:label>Daily step count / general movement</flux:label>

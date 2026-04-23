@@ -20,6 +20,7 @@ return new class extends Migration
             // Current state
             // Lifestyle
             $table->string('work_schedule');
+            $table->string('work_schedule_other')->nullable();
             $table->string('daily_steps');
             $table->string('sleep_hours');
             $table->string('stress_level');

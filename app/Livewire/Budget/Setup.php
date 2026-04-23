@@ -266,6 +266,8 @@ class Setup extends Component
         );
 
         session()->flash('status', 'saved');
+
+        $this->js('window.scrollTo({ top: 0, behavior: "smooth" })');
     }
 
     public function formulaOptions(): array
