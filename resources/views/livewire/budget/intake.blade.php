@@ -97,6 +97,78 @@
 
         <flux:separator />
 
+        {{-- WORKOUT / FITNESS --}}
+        <div>
+            <flux:heading size="lg" class="mb-4">Workout / Fitness</flux:heading>
+
+            <div class="space-y-4">
+                <flux:field>
+                    <flux:label>Do you have access to any of the following?</flux:label>
+                    <div class="mt-1 space-y-2">
+                        @foreach ($this->fitnessAccessOptions() as $value => $label)
+                            <flux:checkbox wire:model="fitness_access" value="{{ $value }}" label="{{ $label }}" />
+                        @endforeach
+                    </div>
+                    <flux:error name="fitness_access" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:label>What does your current weekly activity look like? <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
+                    <flux:description>Doesn't have to be perfect — just a rough idea.</flux:description>
+                    <flux:textarea wire:model="current_activity" placeholder="e.g. 2–3 workouts per week, walking most days (~6–8k steps), occasional activities like golf, yoga, or classes" rows="2" />
+                    <flux:error name="current_activity" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:label>What types of workouts do you enjoy or are open to?</flux:label>
+                    <div class="mt-1 space-y-2">
+                        @foreach ($this->workoutPreferenceOptions() as $value => $label)
+                            <flux:checkbox wire:model.live="workout_preferences" value="{{ $value }}" label="{{ $label }}" />
+                        @endforeach
+                    </div>
+                    <flux:error name="workout_preferences" />
+                </flux:field>
+
+                @if (in_array('other', $workout_preferences))
+                    <flux:field>
+                        <flux:label>What else do you enjoy? <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
+                        <flux:input wire:model="workout_preferences_other" type="text" placeholder="e.g. swimming, hiking, martial arts..." maxlength="200" />
+                        <flux:error name="workout_preferences_other" />
+                    </flux:field>
+                @endif
+
+                <flux:field>
+                    <flux:label>Do you have any injuries or limitations?</flux:label>
+                    <flux:select wire:model.live="has_injuries">
+                        @foreach ($this->hasInjuriesOptions() as $value => $label)
+                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="has_injuries" />
+                </flux:field>
+
+                @if ($has_injuries === 'yes')
+                    <flux:field>
+                        <flux:label>Please describe any injuries or limitations</flux:label>
+                        <flux:textarea wire:model="injury_description" placeholder="e.g. lower back pain, bad knees..." rows="2" maxlength="500" />
+                        <flux:error name="injury_description" />
+                    </flux:field>
+                @endif
+
+                <flux:field>
+                    <flux:label>How many days per week can you realistically work out?</flux:label>
+                    <flux:select wire:model="workout_days_per_week">
+                        @foreach ($this->workoutDaysOptions() as $value => $label)
+                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="workout_days_per_week" />
+                </flux:field>
+            </div>
+        </div>
+
+        <flux:separator />
+
         {{-- NUTRITION --}}
         <div>
             <flux:heading size="lg" class="mb-4">Nutrition</flux:heading>
@@ -139,7 +211,7 @@
 
                 <flux:field>
                     <flux:label>Any dietary restrictions or allergies? <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
-                    <flux:textarea wire:model="dietary_restrictions" placeholder="e.g. lactose intolerant, gluten-free..." rows="2" />
+                    <flux:textarea wire:model="dietary_restrictions" placeholder="e.g. Lactose intolerant, gluten-free..." rows="2" />
                     <flux:error name="dietary_restrictions" />
                 </flux:field>
             </div>
@@ -153,16 +225,6 @@
 
             <div class="space-y-4">
                 <flux:field>
-                    <flux:label>How many days per week can you realistically work out?</flux:label>
-                    <flux:select wire:model="workout_days_per_week">
-                        @foreach ($this->workoutDaysOptions() as $value => $label)
-                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                    <flux:error name="workout_days_per_week" />
-                </flux:field>
-
-                <flux:field>
                     <flux:label>Are you open to tracking calories?</flux:label>
                     <flux:select wire:model="open_to_tracking">
                         @foreach ($this->openToTrackingOptions() as $value => $label)
@@ -174,7 +236,7 @@
 
                 <flux:field>
                     <flux:label>What has made it hard to stay consistent in the past? <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
-                    <flux:textarea wire:model="past_consistency_struggles" placeholder="e.g. busy schedule, travel, lack of motivation, not knowing what to eat..." rows="3" />
+                    <flux:textarea wire:model="past_consistency_struggles" placeholder="e.g. Busy schedule, travel, lack of motivation, not knowing what to eat..." rows="3" />
                     <flux:error name="past_consistency_struggles" />
                 </flux:field>
             </div>

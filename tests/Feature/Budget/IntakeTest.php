@@ -129,10 +129,14 @@ it('saves the intake response and marks user intake as completed', function () {
         ->set('daily_steps', 'low')
         ->set('sleep_hours', 'seven_to_eight')
         ->set('stress_level', 'moderate')
+        ->set('fitness_access', ['gym', 'home_equipment'])
+        ->set('current_activity', 'Strength training 3x per week')
+        ->set('workout_preferences', ['strength_training', 'flexibility_mobility', 'at_home'])
+        ->set('has_injuries', 'no')
+        ->set('workout_days_per_week', 'three_four')
         ->set('tracks_currently', 'no')
         ->set('typical_day_of_eating', 'Coffee, sandwich, pasta.')
         ->set('dietary_restrictions', 'None')
-        ->set('workout_days_per_week', 'three_four')
         ->set('open_to_tracking', 'open_to_trying')
         ->call('submit')
         ->assertRedirect(route('budget.setup'));
@@ -140,6 +144,8 @@ it('saves the intake response and marks user intake as completed', function () {
     $intake = IntakeResponse::where('user_id', $client->id)->first();
     expect($intake)->not->toBeNull();
     expect($intake->main_goal)->toBe('fat_loss');
+    expect($intake->fitness_access)->toBe(['gym', 'home_equipment']);
+    expect($intake->workout_preferences)->toBe(['strength_training', 'flexibility_mobility', 'at_home']);
 
     expect($client->fresh()->hasCompletedIntake())->toBeTrue();
 });
@@ -152,4 +158,68 @@ it('requires main_goal to be selected', function () {
         ->set('main_goal', '')
         ->call('submit')
         ->assertHasErrors(['main_goal']);
+});
+
+it('accepts free text for current_activity', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(Intake::class)
+        ->set('main_goal', 'fat_loss')
+        ->set('work_schedule', 'nine_to_five')
+        ->set('daily_steps', 'low')
+        ->set('sleep_hours', 'seven_to_eight')
+        ->set('stress_level', 'moderate')
+        ->set('current_activity', 'yoga twice a week and walking most days')
+        ->set('has_injuries', 'no')
+        ->set('workout_days_per_week', 'three_four')
+        ->set('tracks_currently', 'no')
+        ->set('open_to_tracking', 'yes_comfortable')
+        ->call('submit')
+        ->assertRedirect(route('budget.setup'));
+
+    $intake = IntakeResponse::where('user_id', $client->id)->first();
+    expect($intake->current_activity)->toBe('yoga twice a week and walking most days');
+});
+
+it('requires injury_description when has_injuries is yes', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(Intake::class)
+        ->set('main_goal', 'fat_loss')
+        ->set('work_schedule', 'nine_to_five')
+        ->set('daily_steps', 'low')
+        ->set('sleep_hours', 'seven_to_eight')
+        ->set('stress_level', 'moderate')
+        ->set('has_injuries', 'yes')
+        ->set('injury_description', '')
+        ->set('workout_days_per_week', 'three_four')
+        ->set('tracks_currently', 'no')
+        ->set('open_to_tracking', 'yes_comfortable')
+        ->call('submit')
+        ->assertHasErrors(['injury_description']);
+});
+
+it('saves injury description when has_injuries is yes', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(Intake::class)
+        ->set('main_goal', 'fat_loss')
+        ->set('work_schedule', 'nine_to_five')
+        ->set('daily_steps', 'low')
+        ->set('sleep_hours', 'seven_to_eight')
+        ->set('stress_level', 'moderate')
+        ->set('has_injuries', 'yes')
+        ->set('injury_description', 'Bad left knee')
+        ->set('workout_days_per_week', 'three_four')
+        ->set('tracks_currently', 'no')
+        ->set('open_to_tracking', 'yes_comfortable')
+        ->call('submit')
+        ->assertRedirect(route('budget.setup'));
+
+    $intake = IntakeResponse::where('user_id', $client->id)->first();
+    expect($intake->has_injuries)->toBe('yes');
+    expect($intake->injury_description)->toBe('Bad left knee');
 });

@@ -29,6 +29,19 @@ class Intake extends Component
 
     public string $stress_level = 'moderate';
 
+    // Workout / Fitness
+    public array $fitness_access = [];
+
+    public string $current_activity = '';
+
+    public array $workout_preferences = [];
+
+    public string $workout_preferences_other = '';
+
+    public string $has_injuries = 'no';
+
+    public string $injury_description = '';
+
     // Nutrition
     public string $tracks_currently = 'no';
 
@@ -42,7 +55,7 @@ class Intake extends Component
     public string $dietary_preference_other = '';
 
     // Expectations
-    public string $workout_days_per_week = 'three_four';
+    public string $workout_days_per_week = 'two_three';
 
     public string $open_to_tracking = 'yes_comfortable';
 
@@ -84,9 +97,10 @@ class Intake extends Component
     public function dailyStepsOptions(): array
     {
         return [
-            'low' => 'Low (under 5,000 steps)',
-            'moderate' => 'Moderate (5,000–10,000 steps)',
-            'high' => 'High (10,000+ steps)',
+            'low' => 'Low (under 5,000)',
+            'moderate' => 'Moderate (5,000–8,000)',
+            'high' => 'High (8,000–12,000)',
+            'very_high' => 'Very high (12,000+)',
         ];
     }
 
@@ -119,13 +133,44 @@ class Intake extends Component
         ];
     }
 
+    public function fitnessAccessOptions(): array
+    {
+        return [
+            'gym' => 'Gym',
+            'home_equipment' => 'Home equipment (dumbbells, bands, etc.)',
+            'classes_studio' => 'Classes/studio',
+            'none' => 'None',
+        ];
+    }
+
+    public function workoutPreferenceOptions(): array
+    {
+        return [
+            'strength_training' => 'Strength training',
+            'classes' => 'Classes (yoga, pilates, spin, etc.)',
+            'walking_cardio' => 'Walking / cardio',
+            'flexibility_mobility' => 'Flexibility / mobility',
+            'at_home' => 'At-home workouts',
+            'open_to_anything' => 'Open to anything',
+            'other' => 'Other',
+        ];
+    }
+
+    public function hasInjuriesOptions(): array
+    {
+        return [
+            'no' => 'No',
+            'yes' => 'Yes',
+        ];
+    }
+
     public function workoutDaysOptions(): array
     {
         return [
             'one_two' => '1–2 days',
+            'two_three' => '2–3 days',
             'three_four' => '3–4 days',
-            'five_six' => '5–6 days',
-            'every_day' => 'Every day',
+            'four_five' => '4–5 days',
         ];
     }
 
@@ -160,15 +205,23 @@ class Intake extends Component
             'why_now' => ['nullable', 'string', 'max:1000'],
             'work_schedule' => ['required', 'string', 'in:nine_to_five,shift_work,remote,stay_at_home,other'],
             'work_schedule_other' => [$this->work_schedule === 'other' ? 'required' : 'nullable', 'string', 'max:200'],
-            'daily_steps' => ['required', 'string', 'in:low,moderate,high'],
+            'daily_steps' => ['required', 'string', 'in:low,moderate,high,very_high'],
             'sleep_hours' => ['required', 'string', 'in:under_six,six_to_seven,seven_to_eight,eight_plus'],
             'stress_level' => ['required', 'string', 'in:low,moderate,high,very_high'],
+            'fitness_access' => ['nullable', 'array'],
+            'fitness_access.*' => ['string', 'in:gym,home_equipment,classes_studio,none'],
+            'current_activity' => ['nullable', 'string', 'max:500'],
+            'workout_preferences' => ['nullable', 'array'],
+            'workout_preferences.*' => ['string', 'in:strength_training,classes,walking_cardio,flexibility_mobility,at_home,open_to_anything,other'],
+            'workout_preferences_other' => [in_array('other', $this->workout_preferences) ? 'required' : 'nullable', 'string', 'max:200'],
+            'has_injuries' => ['required', 'string', 'in:no,yes'],
+            'injury_description' => [$this->has_injuries === 'yes' ? 'required' : 'nullable', 'string', 'max:500'],
             'tracks_currently' => ['required', 'string', 'in:yes,no,loosely'],
             'typical_day_of_eating' => ['nullable', 'string', 'max:2000'],
             'dietary_restrictions' => ['nullable', 'string', 'max:500'],
             'dietary_preference' => ['nullable', 'string', 'in:none,vegetarian,vegan,pescatarian,paleo,keto,carnivore,other'],
             'dietary_preference_other' => [$this->dietary_preference === 'other' ? 'required' : 'nullable', 'string', 'max:200'],
-            'workout_days_per_week' => ['required', 'string', 'in:one_two,three_four,five_six,every_day'],
+            'workout_days_per_week' => ['required', 'string', 'in:one_two,two_three,three_four,four_five'],
             'open_to_tracking' => ['required', 'string', 'in:yes_comfortable,open_to_trying,simpler_approach'],
             'past_consistency_struggles' => ['nullable', 'string', 'max:2000'],
         ]);
