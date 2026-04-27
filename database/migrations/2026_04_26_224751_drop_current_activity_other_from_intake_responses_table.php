@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('intake_responses', function (Blueprint $table) {
-            $table->dropColumn('current_activity_other');
-        });
+        if (Schema::hasColumn('intake_responses', 'current_activity_other')) {
+            Schema::table('intake_responses', function (Blueprint $table) {
+                $table->dropColumn('current_activity_other');
+            });
+        }
     }
 
     public function down(): void
