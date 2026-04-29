@@ -82,7 +82,7 @@
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <flux:field>
-                        <flux:label>Gender</flux:label>
+                        <flux:label>Sex</flux:label>
                         <flux:select wire:model.live="gender">
                             @foreach ($this->genderOptions() as $value => $label)
                                 <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
@@ -105,10 +105,10 @@
                         <flux:label>Height</flux:label>
                         <div class="flex gap-2">
                             <div class="flex-1">
-                                <flux:input wire:model.live.debounce.500ms="height_feet" type="number" min="1" max="9" placeholder="5" suffix="ft" />
+                                <flux:input wire:model.live.debounce.500ms="height_feet" type="number" min="1" max="9" suffix="ft" />
                             </div>
                             <div class="flex-1">
-                                <flux:input wire:model.live.debounce.500ms="height_inches" type="number" min="0" max="11" placeholder="8" suffix="in" />
+                                <flux:input wire:model.live.debounce.500ms="height_inches" type="number" min="0" max="11" suffix="in" />
                             </div>
                         </div>
                         <flux:error name="height_feet" />
@@ -119,7 +119,8 @@
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <flux:field>
                         <flux:label>Current Weight</flux:label>
-                        <flux:input wire:model.live.debounce.500ms="weight_lbs" type="number" min="50" max="1500" step="0.1" placeholder="170.5" suffix="lbs" />
+                        <flux:input wire:model.live.debounce.500ms="weight_lbs" type="number" min="50" max="1500" step="0.1" suffix="lbs" />
+                        <flux:text size="sm" class="text-zinc-400 mt-1">Decimals are supported, e.g. 170.5</flux:text>
                         <flux:error name="weight_lbs" />
                     </flux:field>
 

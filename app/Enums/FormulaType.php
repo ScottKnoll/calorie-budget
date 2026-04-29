@@ -10,8 +10,8 @@ enum FormulaType: string
     public function label(): string
     {
         return match ($this) {
-            FormulaType::Standard => 'Standard (Mifflin-St Jeor)',
-            FormulaType::LeanMass => 'Lean Mass (Katch-McArdle)',
+            FormulaType::Standard => "Standard (I don't know my body fat %)",
+            FormulaType::LeanMass => 'Lean Mass (I know my body fat %)',
         };
     }
 }

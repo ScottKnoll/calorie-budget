@@ -75,10 +75,11 @@ class Intake extends Component
     public function mainGoalOptions(): array
     {
         return [
-            'fat_loss' => 'Fat loss',
-            'consistency' => 'Consistency',
-            'energy' => 'More energy',
-            'strength' => 'Build strength',
+            'fat_loss' => 'Lose fat / lean out',
+            'build_muscle' => 'Build muscle / get stronger',
+            'overall_health' => 'Improve overall health & fitness',
+            'energy' => 'Increase energy & feel better day-to-day',
+            'maintain' => 'Maintain weight / stay on track',
             'other' => 'Other',
         ];
     }
@@ -97,6 +98,7 @@ class Intake extends Component
     public function dailyStepsOptions(): array
     {
         return [
+            'unknown' => "I don't track / not sure",
             'low' => 'Low (under 5,000)',
             'moderate' => 'Moderate (5,000–8,000)',
             'high' => 'High (8,000–12,000)',
@@ -200,12 +202,12 @@ class Intake extends Component
     public function submit(): void
     {
         $validated = $this->validate([
-            'main_goal' => ['required', 'string', 'in:fat_loss,consistency,energy,strength,other'],
+            'main_goal' => ['required', 'string', 'in:fat_loss,build_muscle,overall_health,energy,maintain,other'],
             'main_goal_other' => [$this->main_goal === 'other' ? 'required' : 'nullable', 'string', 'max:200'],
             'why_now' => ['nullable', 'string', 'max:1000'],
             'work_schedule' => ['required', 'string', 'in:nine_to_five,shift_work,remote,stay_at_home,other'],
             'work_schedule_other' => [$this->work_schedule === 'other' ? 'required' : 'nullable', 'string', 'max:200'],
-            'daily_steps' => ['required', 'string', 'in:low,moderate,high,very_high'],
+            'daily_steps' => ['required', 'string', 'in:unknown,low,moderate,high,very_high'],
             'sleep_hours' => ['required', 'string', 'in:under_six,six_to_seven,seven_to_eight,eight_plus'],
             'stress_level' => ['required', 'string', 'in:low,moderate,high,very_high'],
             'fitness_access' => ['nullable', 'array'],
