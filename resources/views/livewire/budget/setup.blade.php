@@ -94,7 +94,7 @@
                     @if ($formula === 'standard')
                         <flux:field>
                             <flux:label>Age</flux:label>
-                            <flux:input wire:model.live.debounce.500ms="age" type="number" min="1" max="120" placeholder="30" />
+                            <flux:input wire:model.live.debounce.500ms="age" type="number" min="1" max="120" />
                             <flux:error name="age" />
                         </flux:field>
                     @endif
@@ -205,7 +205,7 @@
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <flux:field>
                         <flux:label>Goal Weight <flux:badge size="sm" variant="outline" class="ml-1">optional</flux:badge></flux:label>
-                        <flux:input wire:model.live.debounce.500ms="goal_weight_lbs" type="number" min="50" max="1500" step="0.1" placeholder="150" suffix="lbs" />
+                        <flux:input wire:model.live.debounce.500ms="goal_weight_lbs" type="number" min="50" max="1500" step="0.1" suffix="lbs" />
                         <flux:error name="goal_weight_lbs" />
                     </flux:field>
 

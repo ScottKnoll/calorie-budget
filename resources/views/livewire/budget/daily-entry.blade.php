@@ -117,18 +117,6 @@
                     </flux:field>
 
                     <flux:field>
-                        <flux:label>Protein</flux:label>
-                        <flux:input
-                            wire:model="protein_grams"
-                            type="number"
-                            min="0"
-                            max="9999"
-                            placeholder="g"
-                        />
-                        <flux:error name="protein_grams" />
-                    </flux:field>
-
-                    <flux:field>
                         <flux:label>Fat</flux:label>
                         <flux:input
                             wire:model="fat_grams"
@@ -138,6 +126,18 @@
                             placeholder="g"
                         />
                         <flux:error name="fat_grams" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Protein</flux:label>
+                        <flux:input
+                            wire:model="protein_grams"
+                            type="number"
+                            min="0"
+                            max="9999"
+                            placeholder="g"
+                        />
+                        <flux:error name="protein_grams" />
                     </flux:field>
                 </div>
             </div>
@@ -161,7 +161,7 @@
                 <flux:input
                     wire:model="notes"
                     type="text"
-                    placeholder="e.g. ate out for dinner"
+                    placeholder="e.g. Ate out for dinner"
                     maxlength="500"
                 />
                 <flux:error name="notes" />
