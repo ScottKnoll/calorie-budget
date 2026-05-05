@@ -78,7 +78,7 @@ it('adds a workout with a custom type', function () {
     expect($entry->typeLabel())->toBe('Rock Climbing');
 });
 
-it('validates that duration is required', function () {
+it('allows duration to be omitted', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
@@ -87,7 +87,9 @@ it('validates that duration is required', function () {
         ->set('workoutType', WorkoutType::Lift->value)
         ->set('durationMinutes', null)
         ->call('addEntry')
-        ->assertHasErrors(['durationMinutes']);
+        ->assertHasNoErrors(['durationMinutes']);
+
+    expect($user->workoutEntries()->first()->duration_minutes)->toBeNull();
 });
 
 it('validates that custom type is required when workout type is custom', function () {

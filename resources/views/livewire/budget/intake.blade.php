@@ -64,14 +64,26 @@
                 @endif
 
                 <flux:field>
-                    <flux:label>Daily step count / general movement</flux:label>
-                    <flux:select wire:model="daily_steps">
-                        @foreach ($this->dailyStepsOptions() as $value => $label)
+                    <flux:label>Are you open to tracking your daily steps?</flux:label>
+                    <flux:select wire:model.live="open_to_tracking_steps">
+                        @foreach ($this->openToTrackingStepsOptions() as $value => $label)
                             <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                         @endforeach
                     </flux:select>
-                    <flux:error name="daily_steps" />
+                    <flux:error name="open_to_tracking_steps" />
                 </flux:field>
+
+                @if ($open_to_tracking_steps !== 'prefer_not')
+                    <flux:field>
+                        <flux:label>Current daily step count</flux:label>
+                        <flux:select wire:model="daily_steps">
+                            @foreach ($this->dailyStepsOptions() as $value => $label)
+                                <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                        <flux:error name="daily_steps" />
+                    </flux:field>
+                @endif
 
                 <flux:field>
                     <flux:label>Average sleep</flux:label>
@@ -183,6 +195,25 @@
                     </flux:select>
                     <flux:error name="tracks_currently" />
                 </flux:field>
+
+                <flux:field>
+                    <flux:label>Do you follow any kind of eating window or meal timing pattern? <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
+                    <flux:select wire:model.live="meal_timing_pattern">
+                        <flux:select.option value="">— Select an option —</flux:select.option>
+                        @foreach ($this->mealTimingPatternOptions() as $value => $label)
+                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="meal_timing_pattern" />
+                </flux:field>
+
+                @if ($meal_timing_pattern === 'other')
+                    <flux:field>
+                        <flux:label>Please describe your eating pattern</flux:label>
+                        <flux:input wire:model="meal_timing_pattern_other" type="text" placeholder="e.g. I eat two large meals a day with no snacking..." maxlength="200" />
+                        <flux:error name="meal_timing_pattern_other" />
+                    </flux:field>
+                @endif
 
                 <flux:field>
                     <flux:label>Describe a typical day of eating <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>

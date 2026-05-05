@@ -126,6 +126,7 @@ it('saves the intake response and marks user intake as completed', function () {
         ->set('main_goal', 'fat_loss')
         ->set('why_now', 'Ready to make a change.')
         ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'yes')
         ->set('daily_steps', 'low')
         ->set('sleep_hours', 'seven_to_eight')
         ->set('stress_level', 'moderate')
@@ -144,6 +145,8 @@ it('saves the intake response and marks user intake as completed', function () {
     $intake = IntakeResponse::where('user_id', $client->id)->first();
     expect($intake)->not->toBeNull();
     expect($intake->main_goal)->toBe('fat_loss');
+    expect($intake->open_to_tracking_steps)->toBe('yes');
+    expect($intake->daily_steps)->toBe('low');
     expect($intake->fitness_access)->toBe(['gym', 'home_equipment']);
     expect($intake->workout_preferences)->toBe(['strength_training', 'flexibility_mobility', 'at_home']);
 
@@ -167,6 +170,7 @@ it('accepts free text for current_activity', function () {
         ->test(Intake::class)
         ->set('main_goal', 'fat_loss')
         ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'open_to_it')
         ->set('daily_steps', 'low')
         ->set('sleep_hours', 'seven_to_eight')
         ->set('stress_level', 'moderate')
@@ -189,6 +193,7 @@ it('requires injury_description when has_injuries is yes', function () {
         ->test(Intake::class)
         ->set('main_goal', 'fat_loss')
         ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'yes')
         ->set('daily_steps', 'low')
         ->set('sleep_hours', 'seven_to_eight')
         ->set('stress_level', 'moderate')
@@ -208,6 +213,7 @@ it('saves injury description when has_injuries is yes', function () {
         ->test(Intake::class)
         ->set('main_goal', 'fat_loss')
         ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'yes')
         ->set('daily_steps', 'low')
         ->set('sleep_hours', 'seven_to_eight')
         ->set('stress_level', 'moderate')
@@ -222,4 +228,137 @@ it('saves injury description when has_injuries is yes', function () {
     $intake = IntakeResponse::where('user_id', $client->id)->first();
     expect($intake->has_injuries)->toBe('yes');
     expect($intake->injury_description)->toBe('Bad left knee');
+});
+
+it('saves meal_timing_pattern when provided', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(Intake::class)
+        ->set('main_goal', 'fat_loss')
+        ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'yes')
+        ->set('daily_steps', 'moderate')
+        ->set('sleep_hours', 'seven_to_eight')
+        ->set('stress_level', 'moderate')
+        ->set('has_injuries', 'no')
+        ->set('workout_days_per_week', 'three_four')
+        ->set('tracks_currently', 'no')
+        ->set('meal_timing_pattern', 'intermittent_fasting')
+        ->set('open_to_tracking', 'yes_comfortable')
+        ->call('submit')
+        ->assertRedirect(route('budget.setup'));
+
+    $intake = IntakeResponse::where('user_id', $client->id)->first();
+    expect($intake->meal_timing_pattern)->toBe('intermittent_fasting');
+});
+
+it('allows meal_timing_pattern to be left blank', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(Intake::class)
+        ->set('main_goal', 'fat_loss')
+        ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'yes')
+        ->set('daily_steps', 'moderate')
+        ->set('sleep_hours', 'seven_to_eight')
+        ->set('stress_level', 'moderate')
+        ->set('has_injuries', 'no')
+        ->set('workout_days_per_week', 'three_four')
+        ->set('tracks_currently', 'no')
+        ->set('meal_timing_pattern', '')
+        ->set('open_to_tracking', 'yes_comfortable')
+        ->call('submit')
+        ->assertRedirect(route('budget.setup'));
+
+    $intake = IntakeResponse::where('user_id', $client->id)->first();
+    expect($intake->meal_timing_pattern)->toBeNull();
+});
+
+it('requires meal_timing_pattern_other when meal_timing_pattern is other', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(Intake::class)
+        ->set('main_goal', 'fat_loss')
+        ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'yes')
+        ->set('daily_steps', 'moderate')
+        ->set('sleep_hours', 'seven_to_eight')
+        ->set('stress_level', 'moderate')
+        ->set('has_injuries', 'no')
+        ->set('workout_days_per_week', 'three_four')
+        ->set('tracks_currently', 'no')
+        ->set('meal_timing_pattern', 'other')
+        ->set('meal_timing_pattern_other', '')
+        ->set('open_to_tracking', 'yes_comfortable')
+        ->call('submit')
+        ->assertHasErrors(['meal_timing_pattern_other']);
+});
+
+it('saves meal_timing_pattern_other when meal_timing_pattern is other', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(Intake::class)
+        ->set('main_goal', 'fat_loss')
+        ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'yes')
+        ->set('daily_steps', 'moderate')
+        ->set('sleep_hours', 'seven_to_eight')
+        ->set('stress_level', 'moderate')
+        ->set('has_injuries', 'no')
+        ->set('workout_days_per_week', 'three_four')
+        ->set('tracks_currently', 'no')
+        ->set('meal_timing_pattern', 'other')
+        ->set('meal_timing_pattern_other', 'I eat two large meals a day with no snacking')
+        ->set('open_to_tracking', 'yes_comfortable')
+        ->call('submit')
+        ->assertRedirect(route('budget.setup'));
+
+    $intake = IntakeResponse::where('user_id', $client->id)->first();
+    expect($intake->meal_timing_pattern)->toBe('other');
+    expect($intake->meal_timing_pattern_other)->toBe('I eat two large meals a day with no snacking');
+});
+
+it('does not require daily_steps when open_to_tracking_steps is prefer_not', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(Intake::class)
+        ->set('main_goal', 'fat_loss')
+        ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'prefer_not')
+        ->set('sleep_hours', 'seven_to_eight')
+        ->set('stress_level', 'moderate')
+        ->set('has_injuries', 'no')
+        ->set('workout_days_per_week', 'three_four')
+        ->set('tracks_currently', 'no')
+        ->set('open_to_tracking', 'yes_comfortable')
+        ->call('submit')
+        ->assertRedirect(route('budget.setup'));
+
+    $intake = IntakeResponse::where('user_id', $client->id)->first();
+    expect($intake->open_to_tracking_steps)->toBe('prefer_not');
+    expect($intake->daily_steps)->toBeNull();
+});
+
+it('requires daily_steps when open_to_tracking_steps is yes', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(Intake::class)
+        ->set('main_goal', 'fat_loss')
+        ->set('work_schedule', 'nine_to_five')
+        ->set('open_to_tracking_steps', 'yes')
+        ->set('daily_steps', '')
+        ->set('sleep_hours', 'seven_to_eight')
+        ->set('stress_level', 'moderate')
+        ->set('has_injuries', 'no')
+        ->set('workout_days_per_week', 'three_four')
+        ->set('tracks_currently', 'no')
+        ->set('open_to_tracking', 'yes_comfortable')
+        ->call('submit')
+        ->assertHasErrors(['daily_steps']);
 });

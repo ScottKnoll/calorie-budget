@@ -45,14 +45,13 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <flux:field>
-                <flux:label>Duration (min)</flux:label>
+                <flux:label>Duration (min) <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
                 <flux:input
                     wire:model="durationMinutes"
                     type="number"
                     min="1"
                     max="600"
                     placeholder="45"
-                    required
                 />
                 <flux:error name="durationMinutes" />
             </flux:field>
@@ -178,7 +177,7 @@
                                                     type="number"
                                                     min="1"
                                                     max="600"
-                                                    required
+                                                    placeholder="optional"
                                                 />
                                                 <flux:error name="editingDurationMinutes" />
                                             </flux:field>
@@ -222,7 +221,7 @@
                                 </flux:table.cell>
 
                                 <flux:table.cell class="tabular-nums">
-                                    {{ $entry->duration_minutes }} min
+                                    {{ $entry->duration_minutes ? $entry->duration_minutes . ' min' : '—' }}
                                 </flux:table.cell>
 
                                 <flux:table.cell class="tabular-nums text-zinc-500 dark:text-zinc-400">

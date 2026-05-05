@@ -10,7 +10,9 @@ enum WorkoutType: string
     case Walk = 'walk';
     case Run = 'run';
     case Yoga = 'yoga';
-    case Other = 'other';
+    case Kettlebell = 'kettlebell';
+    case FoamRolling = 'foam_rolling';
+    case Mobility = 'mobility';
     case Custom = 'custom';
 
     public function label(): string
@@ -22,7 +24,9 @@ enum WorkoutType: string
             WorkoutType::Walk => 'Walk',
             WorkoutType::Run => 'Run',
             WorkoutType::Yoga => 'Yoga',
-            WorkoutType::Other => 'Other',
+            WorkoutType::Kettlebell => 'Kettlebell',
+            WorkoutType::FoamRolling => 'Foam Rolling',
+            WorkoutType::Mobility => 'Mobility',
             WorkoutType::Custom => 'Custom',
         };
     }

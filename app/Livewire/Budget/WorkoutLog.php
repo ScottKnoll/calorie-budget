@@ -50,7 +50,7 @@ class WorkoutLog extends Component
             'date' => ['required', 'date'],
             'workoutType' => ['required', 'string'],
             'customType' => [$this->workoutType === WorkoutType::Custom->value ? 'required' : 'nullable', 'string', 'max:100'],
-            'durationMinutes' => ['required', 'integer', 'min:1', 'max:600'],
+            'durationMinutes' => ['nullable', 'integer', 'min:1', 'max:600'],
             'caloriesBurned' => ['nullable', 'integer', 'min:1', 'max:9999'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
@@ -100,7 +100,7 @@ class WorkoutLog extends Component
         $this->validate([
             'editingWorkoutType' => ['required', 'string'],
             'editingCustomType' => [$this->editingWorkoutType === WorkoutType::Custom->value ? 'required' : 'nullable', 'string', 'max:100'],
-            'editingDurationMinutes' => ['required', 'integer', 'min:1', 'max:600'],
+            'editingDurationMinutes' => ['nullable', 'integer', 'min:1', 'max:600'],
             'editingCaloriesBurned' => ['nullable', 'integer', 'min:1', 'max:9999'],
             'editingNotes' => ['nullable', 'string', 'max:1000'],
         ]);

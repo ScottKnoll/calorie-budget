@@ -105,7 +105,11 @@
 
                 {{-- Weekly total row --}}
                 <flux:table.row>
-                    <flux:table.cell class="font-semibold" colspan="4">Weekly Total</flux:table.cell>
+                    <flux:table.cell class="font-semibold" colspan="2">Weekly Total</flux:table.cell>
+                    <flux:table.cell variant="strong" class="tabular-nums">
+                        {{ number_format($this->weeklyConsumed) }}
+                    </flux:table.cell>
+                    <flux:table.cell></flux:table.cell>
                     <flux:table.cell class="tabular-nums font-semibold">
                         @if ($this->weeklyBalance > 0)
                             <span class="text-red-500">+{{ number_format($this->weeklyBalance) }}</span>
@@ -116,6 +120,17 @@
                         @endif
                     </flux:table.cell>
                 </flux:table.row>
+
+                {{-- Daily average row --}}
+                @if ($this->averageDailyConsumed !== null)
+                    <flux:table.row>
+                        <flux:table.cell class="text-zinc-500" colspan="2">Avg / Day</flux:table.cell>
+                        <flux:table.cell variant="strong" class="tabular-nums text-zinc-500">
+                            {{ number_format($this->averageDailyConsumed) }}
+                        </flux:table.cell>
+                        <flux:table.cell colspan="2"></flux:table.cell>
+                    </flux:table.row>
+                @endif
             </flux:table.rows>
         </flux:table>
 
@@ -142,6 +157,11 @@
                                     On target
                                 @endif
                             </p>
+                            @if ($macro['daily_average'] !== null)
+                                <flux:text class="mt-2 text-xs text-zinc-400">
+                                    avg {{ number_format($macro['daily_average']) }}g/day
+                                </flux:text>
+                            @endif
                         </div>
                     @endforeach
                 </div>

@@ -83,6 +83,41 @@ class WeeklySummary extends Component
     }
 
     /**
+     * Number of days this week that have a calorie entry logged.
+     */
+    #[Computed]
+    public function loggedDaysCount(): int
+    {
+        return $this->days
+            ->filter(fn (array $day) => $day['calories_consumed'] !== null)
+            ->count();
+    }
+
+    /**
+     * Total calories consumed across all logged days this week.
+     * Days with no entry are excluded from the sum.
+     */
+    #[Computed]
+    public function weeklyConsumed(): int
+    {
+        return $this->days
+            ->sum(fn (array $day) => $day['calories_consumed'] ?? 0);
+    }
+
+    /**
+     * Average calories consumed per logged day. Null when no days have been logged.
+     */
+    #[Computed]
+    public function averageDailyConsumed(): ?int
+    {
+        if ($this->loggedDaysCount === 0) {
+            return null;
+        }
+
+        return (int) round($this->weeklyConsumed / $this->loggedDaysCount);
+    }
+
+    /**
      * Running total of all logged over/under values for the week.
      * Positive = net over budget. Negative = net under budget.
      */
@@ -94,10 +129,10 @@ class WeeklySummary extends Component
     }
 
     /**
-     * Weekly macro summary: total consumed grams, weekly gram targets, and over/under delta.
+     * Weekly macro summary: total consumed grams, weekly gram targets, over/under delta, and daily average.
      * Only populated when the profile has macro percentages configured.
      *
-     * @return array{carbs: array{consumed: int, target: int, delta: int}, protein: array{consumed: int, target: int, delta: int}, fat: array{consumed: int, target: int, delta: int}}|null
+     * @return array{carbs: array{consumed: int, target: int, delta: int, daily_average: int|null}, protein: array{consumed: int, target: int, delta: int, daily_average: int|null}, fat: array{consumed: int, target: int, delta: int, daily_average: int|null}}|null
      */
     #[Computed]
     public function weeklyMacroSummary(): ?array
@@ -127,21 +162,26 @@ class WeeklySummary extends Component
             return null;
         }
 
+        $loggedDays = $this->loggedDaysCount;
+
         return [
             'carbs' => [
                 'consumed' => $carbsConsumed,
                 'target' => $weeklyCarbTarget,
                 'delta' => $carbsConsumed - $weeklyCarbTarget,
+                'daily_average' => $loggedDays > 0 ? (int) round($carbsConsumed / $loggedDays) : null,
             ],
             'protein' => [
                 'consumed' => $proteinConsumed,
                 'target' => $weeklyProteinTarget,
                 'delta' => $proteinConsumed - $weeklyProteinTarget,
+                'daily_average' => $loggedDays > 0 ? (int) round($proteinConsumed / $loggedDays) : null,
             ],
             'fat' => [
                 'consumed' => $fatConsumed,
                 'target' => $weeklyFatTarget,
                 'delta' => $fatConsumed - $weeklyFatTarget,
+                'daily_average' => $loggedDays > 0 ? (int) round($fatConsumed / $loggedDays) : null,
             ],
         ];
     }
