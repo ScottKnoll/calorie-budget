@@ -186,6 +186,72 @@ class WeeklySummary extends Component
         ];
     }
 
+    /**
+     * Build SVG polyline data for the week's calorie chart.
+     * X positions are fixed to day-of-week index (0=Mon … 6=Sun) so gaps on
+     * unlogged days are visible in the spacing between plotted points.
+     * Returns null when fewer than 2 days have been logged.
+     *
+     * @return array{points: string, dotPoints: array<int, array{x: float, y: float}>, targetY: float|null}|null
+     */
+    #[Computed]
+    public function chartData(): ?array
+    {
+        $target = $this->profile?->daily_calorie_target;
+        $loggedDays = $this->days->filter(fn (array $day) => $day['calories_consumed'] !== null);
+
+        if ($loggedDays->count() < 2) {
+            return null;
+        }
+
+        $calories = $loggedDays->pluck('calories_consumed');
+        $minY = $calories->min();
+        $maxY = $calories->max();
+
+        if ($target !== null) {
+            $minY = min($minY, $target);
+            $maxY = max($maxY, $target);
+        }
+
+        $padding = max(50, (int) round(($maxY - $minY) * 0.1));
+        $minY -= $padding;
+        $maxY += $padding;
+
+        $viewWidth = 600;
+        $viewHeight = 200;
+        $weekStart = Carbon::parse($this->weekStart);
+
+        $dotPoints = [];
+        $pointStrings = [];
+
+        foreach ($loggedDays as $day) {
+            $dayIndex = $weekStart->diffInDays($day['date']);
+            $x = round(($dayIndex / 6) * $viewWidth, 1);
+            $range = $maxY - $minY;
+            $y = $range > 0
+                ? round($viewHeight - (($day['calories_consumed'] - $minY) / $range * $viewHeight), 1)
+                : $viewHeight / 2;
+
+            $dotPoints[] = ['x' => $x, 'y' => $y];
+            $pointStrings[] = "{$x},{$y}";
+        }
+
+        $targetY = null;
+
+        if ($target !== null) {
+            $range = $maxY - $minY;
+            $targetY = $range > 0
+                ? round($viewHeight - (($target - $minY) / $range * $viewHeight), 1)
+                : $viewHeight / 2;
+        }
+
+        return [
+            'points' => implode(' ', $pointStrings),
+            'dotPoints' => $dotPoints,
+            'targetY' => $targetY,
+        ];
+    }
+
     public function render(): View
     {
         return view('livewire.budget.weekly-summary');

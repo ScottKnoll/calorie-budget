@@ -4,16 +4,20 @@ namespace App\Livewire\Budget;
 
 use App\Enums\WorkoutType;
 use App\Models\WorkoutEntry;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Title('Workout Log')]
 class WorkoutLog extends Component
 {
+    use WithPagination;
+
     public string $date = '';
 
     public string $workoutType = '';
@@ -67,6 +71,7 @@ class WorkoutLog extends Component
         $this->reset(['durationMinutes', 'caloriesBurned', 'notes', 'customType']);
         $this->workoutType = WorkoutType::Lift->value;
         unset($this->entries);
+        $this->resetPage();
     }
 
     public function startEditing(int $id): void
@@ -128,6 +133,7 @@ class WorkoutLog extends Component
         $entry = $this->findOwnedEntry($id);
         $entry?->delete();
         unset($this->entries);
+        $this->resetPage();
     }
 
     private function findOwnedEntry(?int $id): ?WorkoutEntry
@@ -140,28 +146,26 @@ class WorkoutLog extends Component
     }
 
     /**
-     * All workout entries for the user, newest first.
-     *
-     * @return Collection<int, WorkoutEntry>
+     * Paginated workout entries for the user, newest first.
      */
     #[Computed]
-    public function entries(): Collection
+    public function entries(): LengthAwarePaginator
     {
         return auth()->user()->workoutEntries()
             ->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate(10);
     }
 
     /**
-     * Entries grouped by date string, newest date first.
+     * Current page's entries grouped by date string, newest date first.
      *
      * @return Collection<string, Collection<int, WorkoutEntry>>
      */
     #[Computed]
     public function groupedEntries(): Collection
     {
-        return $this->entries->groupBy(fn (WorkoutEntry $entry) => $entry->date->toDateString());
+        return $this->entries->getCollection()->groupBy(fn (WorkoutEntry $entry) => $entry->date->toDateString());
     }
 
     #[Computed]

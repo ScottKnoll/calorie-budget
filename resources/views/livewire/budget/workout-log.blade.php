@@ -114,7 +114,7 @@
         </div>
 
         {{-- History table --}}
-        <flux:table>
+        <flux:table :paginate="$this->entries">
             <flux:table.columns>
                 <flux:table.column>Type</flux:table.column>
                 <flux:table.column>Duration</flux:table.column>
@@ -249,7 +249,7 @@
         </flux:table>
 
         <flux:text class="mt-4 text-center text-xs text-zinc-400">
-            {{ $this->entries->count() }} total workout{{ $this->entries->count() === 1 ? '' : 's' }} logged
+            {{ $this->entries->total() }} total workout{{ $this->entries->total() === 1 ? '' : 's' }} logged
         </flux:text>
     @endif
 

@@ -156,3 +156,76 @@ it('navigates to the previous and next week', function () {
         ->call('nextWeek')
         ->assertSet('weekStart', $nextMonday);
 });
+
+it('returns null chartData when fewer than 2 days are logged', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create(['daily_calorie_target' => 2000]);
+
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::now()->startOfWeek(),
+        'calories_consumed' => 1800,
+    ]);
+
+    $component = Livewire::actingAs($user)->test(WeeklySummary::class);
+
+    expect($component->instance()->chartData)->toBeNull();
+});
+
+it('returns chart data with points and dotPoints when 2+ days are logged', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create(['daily_calorie_target' => 2000]);
+
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::now()->startOfWeek(),
+        'calories_consumed' => 1800,
+    ]);
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::now()->startOfWeek()->addDay(),
+        'calories_consumed' => 2200,
+    ]);
+
+    $component = Livewire::actingAs($user)->test(WeeklySummary::class);
+
+    $chart = $component->instance()->chartData;
+    expect($chart)->not->toBeNull();
+    expect($chart['points'])->toBeString()->not->toBeEmpty();
+    expect($chart['dotPoints'])->toHaveCount(2);
+    expect($chart['targetY'])->toBeFloat();
+});
+
+it('returns null targetY in chartData when no profile is set', function () {
+    $user = User::factory()->create();
+
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::now()->startOfWeek(),
+        'calories_consumed' => 1800,
+    ]);
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::now()->startOfWeek()->addDay(),
+        'calories_consumed' => 2200,
+    ]);
+
+    $component = Livewire::actingAs($user)->test(WeeklySummary::class);
+
+    expect($component->instance()->chartData['targetY'])->toBeNull();
+});
+
+it('spaces dot points based on day-of-week index', function () {
+    $user = User::factory()->create();
+
+    // Log Monday (index 0) and Wednesday (index 2) — should produce x=0 and x=200
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::now()->startOfWeek(),          // Monday
+        'calories_consumed' => 2000,
+    ]);
+    CalorieEntry::factory()->for($user)->create([
+        'date' => Carbon::now()->startOfWeek()->addDays(2), // Wednesday
+        'calories_consumed' => 2000,
+    ]);
+
+    $component = Livewire::actingAs($user)->test(WeeklySummary::class);
+
+    $dots = $component->instance()->chartData['dotPoints'];
+    expect($dots[0]['x'])->toBe(0.0);   // Monday  = 0/6 * 600
+    expect($dots[1]['x'])->toBe(200.0); // Wednesday = 2/6 * 600
+});

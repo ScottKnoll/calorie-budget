@@ -168,6 +168,71 @@
             </div>
         @endif
 
+        {{-- SVG calorie chart for the week --}}
+        @if ($this->chartData)
+            @php $chart = $this->chartData; @endphp
+            <div class="mt-8 max-w-2xl overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
+                <flux:heading size="sm" class="mb-3">Calories This Week</flux:heading>
+                <svg viewBox="0 0 600 200" class="w-full" preserveAspectRatio="none" aria-hidden="true">
+                    {{-- Horizontal grid lines --}}
+                    @foreach ([0, 50, 100, 150, 200] as $gridY)
+                        <line
+                            x1="0" y1="{{ $gridY }}"
+                            x2="600" y2="{{ $gridY }}"
+                            stroke="currentColor"
+                            stroke-width="0.5"
+                            class="text-zinc-200 dark:text-zinc-700"
+                        />
+                    @endforeach
+
+                    {{-- Daily target line --}}
+                    @if ($chart['targetY'] !== null)
+                        <line
+                            x1="0" y1="{{ $chart['targetY'] }}"
+                            x2="600" y2="{{ $chart['targetY'] }}"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-dasharray="6,3"
+                            class="text-amber-500"
+                        />
+                    @endif
+
+                    {{-- Fill area under the calorie line --}}
+                    <polyline
+                        points="{{ $chart['points'] }} 600,200 0,200"
+                        fill="currentColor"
+                        stroke="none"
+                        class="text-blue-500/10"
+                    />
+
+                    {{-- Calorie line --}}
+                    <polyline
+                        points="{{ $chart['points'] }}"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        class="text-blue-500"
+                    />
+
+                    {{-- Data point dots --}}
+                    @foreach ($chart['dotPoints'] as $dot)
+                        <circle cx="{{ $dot['x'] }}" cy="{{ $dot['y'] }}" r="3" fill="currentColor" class="text-blue-500" />
+                    @endforeach
+                </svg>
+
+                @if ($chart['targetY'] !== null)
+                    <div class="mt-2 flex items-center gap-2">
+                        <svg viewBox="0 0 24 4" class="h-1 w-6 shrink-0" aria-hidden="true">
+                            <line x1="0" y1="2" x2="24" y2="2" stroke="currentColor" stroke-width="2" stroke-dasharray="4,2" class="text-amber-500" />
+                        </svg>
+                        <flux:text class="text-xs text-zinc-400">Target: {{ number_format($this->profile->daily_calorie_target) }} cal/day</flux:text>
+                    </div>
+                @endif
+            </div>
+        @endif
+
         <div class="mt-6">
             <a href="{{ route('budget.log') }}" wire:navigate class="text-sm text-zinc-700 transition-colors hover:text-zinc-500 dark:text-zinc-300 dark:hover:text-zinc-400">
                 &larr; Back to today's log
