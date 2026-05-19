@@ -22,16 +22,16 @@ it('registers a new user as client when type=client is passed', function () {
     expect($user->user_type)->toBe(UserType::Client);
 });
 
-it('registers a normal user as personal when no type is passed', function () {
+it('registers a normal user as member when no type is passed', function () {
     $this->post(route('register.store'), [
-        'name' => 'John Personal',
+        'name' => 'John Member',
         'email' => 'john@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
     ])->assertSessionHasNoErrors();
 
     $user = User::where('email', 'john@example.com')->first();
-    expect($user->user_type)->toBe(UserType::Personal);
+    expect($user->user_type)->toBe(UserType::Member);
 });
 
 it('redirects a new client user to the intake page after registration', function () {
@@ -44,10 +44,10 @@ it('redirects a new client user to the intake page after registration', function
     ])->assertRedirect(route('budget.intake'));
 });
 
-it('redirects a personal user to the dashboard after registration', function () {
+it('redirects a member user to the dashboard after registration', function () {
     $this->post(route('register.store'), [
-        'name' => 'Personal User',
-        'email' => 'personal@example.com',
+        'name' => 'Member User',
+        'email' => 'member@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
     ])->assertRedirect(route('dashboard', absolute: false));
@@ -70,7 +70,7 @@ it('redirects a client without a completed intake away from dashboard', function
         ->assertRedirect(route('budget.intake'));
 });
 
-it('does not redirect a personal user away from dashboard', function () {
+it('does not redirect a member user away from dashboard', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
@@ -361,4 +361,38 @@ it('requires daily_steps when open_to_tracking_steps is yes', function () {
         ->set('open_to_tracking', 'yes_comfortable')
         ->call('submit')
         ->assertHasErrors(['daily_steps']);
+});
+
+// --- Coach access ---
+
+it('allows a coach to access the intake review page', function () {
+    $coach = User::factory()->asCoach()->create();
+
+    $this->actingAs($coach)
+        ->get(route('budget.intake-review'))
+        ->assertSuccessful();
+});
+
+it('denies a member from accessing the intake review page', function () {
+    $member = User::factory()->create();
+
+    $this->actingAs($member)
+        ->get(route('budget.intake-review'))
+        ->assertForbidden();
+});
+
+it('denies a client from accessing the intake review page', function () {
+    $client = User::factory()->withCompletedIntake()->create();
+
+    $this->actingAs($client)
+        ->get(route('budget.intake-review'))
+        ->assertForbidden();
+});
+
+it('does not redirect a coach away from dashboard', function () {
+    $coach = User::factory()->asCoach()->create();
+
+    $this->actingAs($coach)
+        ->get(route('dashboard'))
+        ->assertSuccessful();
 });

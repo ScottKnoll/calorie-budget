@@ -4,14 +4,16 @@ namespace App\Enums;
 
 enum UserType: string
 {
-    case Personal = 'personal';
+    case Coach = 'coach';
     case Client = 'client';
+    case Member = 'member';
 
     public function label(): string
     {
         return match ($this) {
-            UserType::Personal => 'Personal',
+            UserType::Coach => 'Coach',
             UserType::Client => 'Client',
+            UserType::Member => 'Member',
         };
     }
 }

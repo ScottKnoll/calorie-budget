@@ -27,7 +27,7 @@ class CreateNewUser implements CreatesNewUsers
 
         $userType = isset($input['type']) && $input['type'] === 'client'
             ? UserType::Client
-            : UserType::Personal;
+            : UserType::Member;
 
         return User::create([
             'name' => $input['name'],

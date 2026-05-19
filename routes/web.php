@@ -19,7 +19,7 @@ Route::livewire('macros', Macros::class)->name('budget.macros')->middleware('int
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('dashboard', Dashboard::class)->name('dashboard')->middleware('intake.completed');
     Route::livewire('intake', Intake::class)->name('budget.intake');
-    Route::livewire('admin/intake-review', IntakeReview::class)->name('budget.intake-review');
+    Route::livewire('admin/intake-review', IntakeReview::class)->name('budget.intake-review')->middleware('coach');
 
     Route::livewire('log/{date?}', DailyEntry::class)->name('budget.log')->middleware('intake.completed');
     Route::livewire('summary', WeeklySummary::class)->name('budget.summary')->middleware('intake.completed');

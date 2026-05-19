@@ -37,9 +37,19 @@ class User extends Authenticatable
         ];
     }
 
+    public function isCoach(): bool
+    {
+        return $this->user_type === UserType::Coach;
+    }
+
     public function isClient(): bool
     {
         return $this->user_type === UserType::Client;
+    }
+
+    public function isMember(): bool
+    {
+        return $this->user_type === UserType::Member;
     }
 
     public function hasCompletedIntake(): bool
