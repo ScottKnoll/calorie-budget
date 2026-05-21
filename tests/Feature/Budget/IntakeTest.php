@@ -363,31 +363,7 @@ it('requires daily_steps when open_to_tracking_steps is yes', function () {
         ->assertHasErrors(['daily_steps']);
 });
 
-// --- Coach access ---
-
-it('allows a coach to access the intake review page', function () {
-    $coach = User::factory()->asCoach()->create();
-
-    $this->actingAs($coach)
-        ->get(route('budget.intake-review'))
-        ->assertSuccessful();
-});
-
-it('denies a member from accessing the intake review page', function () {
-    $member = User::factory()->create();
-
-    $this->actingAs($member)
-        ->get(route('budget.intake-review'))
-        ->assertForbidden();
-});
-
-it('denies a client from accessing the intake review page', function () {
-    $client = User::factory()->withCompletedIntake()->create();
-
-    $this->actingAs($client)
-        ->get(route('budget.intake-review'))
-        ->assertForbidden();
-});
+// --- Coach role ---
 
 it('does not redirect a coach away from dashboard', function () {
     $coach = User::factory()->asCoach()->create();

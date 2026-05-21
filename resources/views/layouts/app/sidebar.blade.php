@@ -40,6 +40,16 @@
                         {{ __('Macro Calculator') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
+
+                @auth
+                    @if (auth()->user()->isCoach())
+                        <flux:sidebar.group heading="Coaching" class="grid">
+                            <flux:sidebar.item icon="users" :href="route('coach.dashboard')" :current="request()->routeIs('coach.*')" wire:navigate>
+                                {{ __('Clients') }}
+                            </flux:sidebar.item>
+                        </flux:sidebar.group>
+                    @endif
+                @endauth
             </flux:sidebar.nav>
 
             <flux:spacer />

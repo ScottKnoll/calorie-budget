@@ -8,6 +8,8 @@ use App\Livewire\Budget\Setup;
 use App\Livewire\Budget\WeeklySummary;
 use App\Livewire\Budget\WeightLog;
 use App\Livewire\Budget\WorkoutLog;
+use App\Livewire\Coach\ClientProfile;
+use App\Livewire\Coach\Dashboard as CoachDashboard;
 use App\Livewire\Dashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -19,12 +21,20 @@ Route::livewire('macros', Macros::class)->name('budget.macros')->middleware('int
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('dashboard', Dashboard::class)->name('dashboard')->middleware('intake.completed');
     Route::livewire('intake', Intake::class)->name('budget.intake');
-    Route::livewire('admin/intake-review', IntakeReview::class)->name('budget.intake-review')->middleware('coach');
 
     Route::livewire('log/{date?}', DailyEntry::class)->name('budget.log')->middleware('intake.completed');
     Route::livewire('summary', WeeklySummary::class)->name('budget.summary')->middleware('intake.completed');
     Route::livewire('weight', WeightLog::class)->name('budget.weight')->middleware('intake.completed');
     Route::livewire('workouts', WorkoutLog::class)->name('budget.workouts')->middleware('intake.completed');
+
+    // Legacy redirect — keep the old named route working
+    Route::livewire('admin/intake-review', IntakeReview::class)->name('budget.intake-review')->middleware('coach');
+
+    // Coach area
+    Route::middleware('coach')->prefix('coach')->name('coach.')->group(function () {
+        Route::livewire('/', CoachDashboard::class)->name('dashboard');
+        Route::livewire('/clients/{client}', ClientProfile::class)->name('clients.show');
+    });
 });
 
 require __DIR__.'/settings.php';
