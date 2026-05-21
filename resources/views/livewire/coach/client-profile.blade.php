@@ -7,9 +7,9 @@
     </div>
 
     {{-- Client header --}}
-    <div class="mb-8 flex items-center gap-4">
+    <div class="mb-8 flex flex-wrap items-center gap-4">
         <flux:avatar :name="$client->name" size="lg" />
-        <div>
+        <div class="flex-1">
             <flux:heading size="xl">{{ $client->name }}</flux:heading>
             <flux:text class="text-zinc-500">
                 {{ $client->email }}
@@ -18,11 +18,35 @@
                 @endif
             </flux:text>
         </div>
-        @if ($client->intake_completed_at)
-            <flux:badge color="green" class="ml-auto shrink-0">Intake complete</flux:badge>
-        @else
-            <flux:badge color="yellow" class="ml-auto shrink-0">Intake pending</flux:badge>
-        @endif
+        <div class="flex items-center gap-2">
+            @if ($client->intake_completed_at)
+                <flux:badge color="green" size="sm">Intake complete</flux:badge>
+            @else
+                <flux:badge color="yellow" size="sm">Intake pending</flux:badge>
+            @endif
+            @php $latestPlan = $client->clientPlans()->first(); @endphp
+            @if ($latestPlan)
+                <flux:button
+                    :href="route('coach.clients.plans.edit', [$client, $latestPlan])"
+                    wire:navigate
+                    icon="pencil-square"
+                    size="sm"
+                    variant="ghost"
+                >
+                    Edit plan
+                </flux:button>
+            @else
+                <flux:button
+                    :href="route('coach.clients.plans.create', $client)"
+                    wire:navigate
+                    icon="plus"
+                    size="sm"
+                    variant="primary"
+                >
+                    Create plan
+                </flux:button>
+            @endif
+        </div>
     </div>
 
     @php $intake = $client->intakeResponse; @endphp

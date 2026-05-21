@@ -32,6 +32,11 @@
                         <flux:sidebar.item icon="bolt" :href="route('budget.workouts')" :current="request()->routeIs('budget.workouts')" wire:navigate>
                             {{ __('Workouts') }}
                         </flux:sidebar.item>
+                        @if (auth()->user()->isClient())
+                            <flux:sidebar.item icon="document-text" :href="route('budget.my-plan')" :current="request()->routeIs('budget.my-plan')" wire:navigate>
+                                {{ __('My Plan') }}
+                            </flux:sidebar.item>
+                        @endif
                     @endauth
                     <flux:sidebar.item icon="cog-6-tooth" :href="route('budget.setup')" :current="request()->routeIs('budget.setup')" wire:navigate>
                         {{ __('Calorie Setup') }}

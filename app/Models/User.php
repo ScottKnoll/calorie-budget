@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $this->hasMany(WorkoutEntry::class);
     }
 
+    public function clientPlans(): HasMany
+    {
+        return $this->hasMany(ClientPlan::class)->latest();
+    }
+
     /**
      * Get the user's initials
      */
