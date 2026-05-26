@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\Budget\CheckIn;
+use App\Livewire\Budget\CheckIns;
 use App\Livewire\Budget\DailyEntry;
 use App\Livewire\Budget\Intake;
 use App\Livewire\Budget\IntakeReview;
@@ -29,6 +31,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('weight', WeightLog::class)->name('budget.weight')->middleware('intake.completed');
     Route::livewire('workouts', WorkoutLog::class)->name('budget.workouts')->middleware('intake.completed');
     Route::livewire('my-plan', MyPlan::class)->name('budget.my-plan');
+    Route::livewire('check-in', CheckIn::class)->name('budget.check-in');
+    Route::livewire('check-ins', CheckIns::class)->name('budget.check-ins');
 
     // Legacy redirect — keep the old named route working
     Route::livewire('admin/intake-review', IntakeReview::class)->name('budget.intake-review')->middleware('coach');

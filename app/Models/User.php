@@ -87,6 +87,11 @@ class User extends Authenticatable
         return $this->hasMany(ClientPlan::class)->latest();
     }
 
+    public function checkIns(): HasMany
+    {
+        return $this->hasMany(CheckIn::class)->latest();
+    }
+
     /**
      * Get the user's initials
      */

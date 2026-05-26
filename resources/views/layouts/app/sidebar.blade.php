@@ -36,6 +36,9 @@
                             <flux:sidebar.item icon="document-text" :href="route('budget.my-plan')" :current="request()->routeIs('budget.my-plan')" wire:navigate>
                                 {{ __('My Plan') }}
                             </flux:sidebar.item>
+                            <flux:sidebar.item icon="clipboard-document-list" :href="route('budget.check-ins')" :current="request()->routeIs('budget.check-in*')" wire:navigate>
+                                {{ __('Check-Ins') }}
+                            </flux:sidebar.item>
                         @endif
                     @endauth
                     <flux:sidebar.item icon="cog-6-tooth" :href="route('budget.setup')" :current="request()->routeIs('budget.setup')" wire:navigate>
