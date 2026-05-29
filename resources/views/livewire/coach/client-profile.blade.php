@@ -244,4 +244,163 @@
             <flux:text class="text-zinc-400">This client hasn't completed the intake form.</flux:text>
         </div>
     @endif
+
+    {{-- CHECK-INS --}}
+    @php $checkIns = $client->checkIns; @endphp
+    <div class="mt-8">
+        <div class="mb-4 flex items-center justify-between">
+            <flux:heading size="lg">Check-Ins</flux:heading>
+            @if ($checkIns->isNotEmpty())
+                <flux:badge color="zinc">{{ $checkIns->count() }} {{ Str::plural('check-in', $checkIns->count()) }}</flux:badge>
+            @endif
+        </div>
+
+        @if ($checkIns->isEmpty())
+            <div class="rounded-xl border border-zinc-200 bg-white px-6 py-12 text-center dark:border-zinc-700 dark:bg-zinc-900">
+                <flux:heading size="lg" class="mb-1">No check-ins yet</flux:heading>
+                <flux:text class="text-zinc-400">This client hasn't submitted a weekly check-in.</flux:text>
+            </div>
+        @else
+            <div class="space-y-4">
+                @foreach ($checkIns as $checkIn)
+                    <div wire:key="check-in-{{ $checkIn->id }}" class="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+
+                        {{-- Client submission --}}
+                        <div class="p-5">
+                            <div class="mb-4 flex items-center justify-between">
+                                <flux:heading size="sm">{{ $checkIn->created_at->format('F j, Y') }}</flux:heading>
+                                <flux:badge color="zinc">{{ number_format($checkIn->weight, 1) }} lbs</flux:badge>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div>
+                                    <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">How did the week feel overall?</flux:text>
+                                    <flux:text class="mt-0.5">{{ $checkIn->week_feeling }}</flux:text>
+                                </div>
+                                <div>
+                                    <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">What went well?</flux:text>
+                                    <flux:text class="mt-0.5">{{ $checkIn->went_well }}</flux:text>
+                                </div>
+                                <div>
+                                    <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">What felt hardest?</flux:text>
+                                    <flux:text class="mt-0.5">{{ $checkIn->felt_hardest }}</flux:text>
+                                </div>
+                                <div>
+                                    <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Hunger, energy & sleep</flux:text>
+                                    <flux:text class="mt-0.5">{{ $checkIn->hunger_energy_sleep }}</flux:text>
+                                </div>
+                                <div>
+                                    <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Activity consistency</flux:text>
+                                    <flux:text class="mt-0.5">{{ $checkIn->activity_consistency }}</flux:text>
+                                </div>
+                                @if ($checkIn->need_help)
+                                    <div>
+                                        <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Needs help with</flux:text>
+                                        <flux:text class="mt-0.5">{{ $checkIn->need_help }}</flux:text>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Coach notes section --}}
+                        <div class="border-t border-zinc-100 dark:border-zinc-800">
+                            @if ($editingCheckInId === $checkIn->id)
+
+                                {{-- Inline editing form --}}
+                                <div class="p-5">
+                                    <div class="mb-4 flex items-center justify-between">
+                                        <flux:heading size="sm" class="text-zinc-700 dark:text-zinc-300">Coach Notes</flux:heading>
+                                        @php $latestPlan = $client->clientPlans()->first(); @endphp
+                                        @if ($latestPlan)
+                                            <flux:button
+                                                :href="route('coach.clients.plans.edit', [$client, $latestPlan])"
+                                                wire:navigate
+                                                variant="ghost"
+                                                size="sm"
+                                                icon="document-text"
+                                            >
+                                                View plan
+                                            </flux:button>
+                                        @endif
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <flux:field>
+                                            <flux:label>Workout</flux:label>
+                                            <flux:textarea wire:model="coachWorkout" rows="3" placeholder="Notes on training, activity, or workout adjustments..." maxlength="3000" />
+                                            <flux:error name="coachWorkout" />
+                                        </flux:field>
+
+                                        <flux:field>
+                                            <flux:label>Nutrition</flux:label>
+                                            <flux:textarea wire:model="coachNutrition" rows="3" placeholder="Notes on calories, macros, meal timing, or food quality..." maxlength="3000" />
+                                            <flux:error name="coachNutrition" />
+                                        </flux:field>
+
+                                        <flux:field>
+                                            <flux:label>Habits</flux:label>
+                                            <flux:textarea wire:model="coachHabits" rows="3" placeholder="Notes on sleep, stress, hydration, or daily habits..." maxlength="3000" />
+                                            <flux:error name="coachHabits" />
+                                        </flux:field>
+
+                                        <flux:field>
+                                            <flux:label>General</flux:label>
+                                            <flux:textarea wire:model="coachGeneral" rows="3" placeholder="Any general feedback or observations..." maxlength="3000" />
+                                            <flux:error name="coachGeneral" />
+                                        </flux:field>
+
+                                        <flux:field>
+                                            <flux:label>Focus for Next Week</flux:label>
+                                            <flux:textarea wire:model="coachFocusNextWeek" rows="3" placeholder="Key priorities and intentions for the coming week..." maxlength="3000" />
+                                            <flux:error name="coachFocusNextWeek" />
+                                        </flux:field>
+                                    </div>
+
+                                    <div class="mt-4 flex items-center justify-end gap-3">
+                                        <flux:button wire:click="cancelEditingNotes" variant="ghost" size="sm">Cancel</flux:button>
+                                        <flux:button wire:click="saveNotes" variant="primary" size="sm" wire:loading.attr="disabled">Save notes</flux:button>
+                                    </div>
+                                </div>
+
+                            @else
+
+                                {{-- Coach notes display / add button --}}
+                                @if ($checkIn->hasCoachNotes())
+                                    <div class="p-5">
+                                        <div class="mb-3 flex items-center justify-between">
+                                            <flux:text class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Coach Notes</flux:text>
+                                            <flux:button wire:click="startEditingNotes({{ $checkIn->id }})" variant="ghost" size="sm" icon="pencil">Edit notes</flux:button>
+                                        </div>
+                                        <div class="space-y-3">
+                                            @foreach ([
+                                                ['value' => $checkIn->coach_workout, 'label' => 'Workout'],
+                                                ['value' => $checkIn->coach_nutrition, 'label' => 'Nutrition'],
+                                                ['value' => $checkIn->coach_habits, 'label' => 'Habits'],
+                                                ['value' => $checkIn->coach_general, 'label' => 'General'],
+                                                ['value' => $checkIn->coach_focus_next_week, 'label' => 'Focus for Next Week'],
+                                            ] as $note)
+                                                @if ($note['value'])
+                                                    <div>
+                                                        <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ $note['label'] }}</flux:text>
+                                                        <flux:text class="mt-0.5 whitespace-pre-line">{{ $note['value'] }}</flux:text>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="flex items-center justify-between px-5 py-3">
+                                        <flux:text class="text-sm text-zinc-400 dark:text-zinc-500">No coach notes yet</flux:text>
+                                        <flux:button wire:click="startEditingNotes({{ $checkIn->id }})" variant="ghost" size="sm" icon="plus">Add notes</flux:button>
+                                    </div>
+                                @endif
+
+                            @endif
+                        </div>
+
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
 </div>
