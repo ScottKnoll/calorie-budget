@@ -18,8 +18,7 @@ class PlanEditor extends Component
 
     public string $title = '';
 
-    /** @var array<int, array{id: int|null, title: string, body: string, position: int}> */
-    public array $sections = [];
+    public string $body = '';
 
     public function mount(User $client, ?ClientPlan $plan = null): void
     {
@@ -40,75 +39,21 @@ class PlanEditor extends Component
 
             $this->plan = $plan;
             $this->title = $plan->title;
-            $this->sections = $plan->sections->map(fn ($s) => [
-                'id' => $s->id,
-                'title' => $s->title,
-                'body' => $s->body ?? '',
-                'position' => $s->position,
-            ])->values()->toArray();
+            $this->body = $plan->body ?? '';
         }
-
-        if (empty($this->sections)) {
-            $this->addSection();
-        }
-    }
-
-    public function addSection(): void
-    {
-        $this->sections[] = [
-            'id' => null,
-            'title' => '',
-            'body' => '',
-            'position' => count($this->sections),
-        ];
-    }
-
-    public function removeSection(int $index): void
-    {
-        array_splice($this->sections, $index, 1);
-
-        foreach ($this->sections as $i => &$section) {
-            $section['position'] = $i;
-        }
-    }
-
-    public function updateSectionBody(int $index, string $body): void
-    {
-        $this->sections[$index]['body'] = $body;
     }
 
     public function save(): void
     {
         $this->validate([
             'title' => ['required', 'string', 'max:255'],
-            'sections' => ['required', 'array', 'min:1'],
-            'sections.*.title' => ['required', 'string', 'max:255'],
-            'sections.*.body' => ['nullable', 'string'],
+            'body' => ['nullable', 'string'],
         ]);
 
         $plan = $this->plan ?? new ClientPlan(['user_id' => $this->client->id]);
         $plan->title = $this->title;
+        $plan->body = $this->body ? Purifier::clean($this->body) : null;
         $plan->save();
-
-        $keptIds = [];
-
-        foreach ($this->sections as $index => $sectionData) {
-            $section = isset($sectionData['id'])
-                ? $plan->sections()->find($sectionData['id'])
-                : null;
-
-            $section ??= $plan->sections()->make();
-            $section->title = $sectionData['title'];
-            $section->body = $sectionData['body']
-                ? Purifier::clean($sectionData['body'])
-                : null;
-            $section->position = $index;
-            $section->save();
-
-            $keptIds[] = $section->id;
-        }
-
-        $plan->sections()->whereNotIn('id', $keptIds)->delete();
 
         $this->redirectRoute('coach.clients.show', $this->client, navigate: true);
     }

@@ -1,3 +1,5 @@
+@php $latestPlanForView = $client->clientPlans()->first(); @endphp
+
 <div class="w-full max-w-4xl">
     {{-- Back link --}}
     <div class="mb-6">
@@ -24,18 +26,7 @@
             @else
                 <flux:badge color="yellow" size="sm">Intake pending</flux:badge>
             @endif
-            @php $latestPlan = $client->clientPlans()->first(); @endphp
-            @if ($latestPlan)
-                <flux:button
-                    :href="route('coach.clients.plans.edit', [$client, $latestPlan])"
-                    wire:navigate
-                    icon="pencil-square"
-                    size="sm"
-                    variant="ghost"
-                >
-                    Edit plan
-                </flux:button>
-            @else
+            @if (! $latestPlanForView)
                 <flux:button
                     :href="route('coach.clients.plans.create', $client)"
                     wire:navigate
@@ -48,6 +39,29 @@
             @endif
         </div>
     </div>
+
+    {{-- PLAN --}}
+    @if ($latestPlanForView)
+        <div class="mb-8">
+            <div class="mb-4 flex items-center justify-between">
+                <flux:heading size="lg">{{ $latestPlanForView->title }}</flux:heading>
+                <flux:button
+                    :href="route('coach.clients.plans.edit', [$client, $latestPlanForView])"
+                    wire:navigate
+                    variant="ghost"
+                    size="sm"
+                    icon="pencil-square"
+                >
+                    Edit plan
+                </flux:button>
+            </div>
+            <div class="rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                <div class="trix-content px-6 py-6 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                    {!! $latestPlanForView->body !!}
+                </div>
+            </div>
+        </div>
+    @endif
 
     @php $intake = $client->intakeResponse; @endphp
 
@@ -310,10 +324,9 @@
                                 <div class="p-5">
                                     <div class="mb-4 flex items-center justify-between">
                                         <flux:heading size="sm" class="text-zinc-700 dark:text-zinc-300">Coach Notes</flux:heading>
-                                        @php $latestPlan = $client->clientPlans()->first(); @endphp
-                                        @if ($latestPlan)
+                                        @if ($latestPlanForView)
                                             <flux:button
-                                                :href="route('coach.clients.plans.edit', [$client, $latestPlan])"
+                                                :href="route('coach.clients.plans.edit', [$client, $latestPlanForView])"
                                                 wire:navigate
                                                 variant="ghost"
                                                 size="sm"

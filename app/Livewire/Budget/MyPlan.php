@@ -21,7 +21,7 @@ class MyPlan extends Component
     #[Computed]
     public function plan(): ?ClientPlan
     {
-        return auth()->user()->clientPlans()->with('sections')->first();
+        return auth()->user()->clientPlans()->first();
     }
 
     public function render(): View

@@ -16,6 +16,7 @@ class ClientPlanFactory extends Factory
         return [
             'user_id' => User::factory()->asClient(),
             'title' => 'Initial Plan — '.fake()->date('F Y'),
+            'body' => null,
         ];
     }
 }
