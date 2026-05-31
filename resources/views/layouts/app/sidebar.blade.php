@@ -15,11 +15,18 @@
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
+                {{-- Overview --}}
                 <flux:sidebar.group class="grid">
                     @auth
                         <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                             {{ __('Dashboard') }}
                         </flux:sidebar.item>
+                    @endauth
+                </flux:sidebar.group>
+
+                {{-- Tracking --}}
+                @auth
+                    <flux:sidebar.group heading="Tracking" class="grid">
                         <flux:sidebar.item icon="pencil-square" :href="route('budget.log')" :current="request()->routeIs('budget.log')" wire:navigate>
                             {{ __('Daily Log') }}
                         </flux:sidebar.item>
@@ -32,15 +39,25 @@
                         <flux:sidebar.item icon="bolt" :href="route('budget.workouts')" :current="request()->routeIs('budget.workouts')" wire:navigate>
                             {{ __('Workouts') }}
                         </flux:sidebar.item>
-                        @if (auth()->user()->isClient())
+                    </flux:sidebar.group>
+                @endauth
+
+                {{-- My Program (clients only) --}}
+                @auth
+                    @if (auth()->user()->isClient())
+                        <flux:sidebar.group heading="My Program" class="grid">
                             <flux:sidebar.item icon="document-text" :href="route('budget.my-plan')" :current="request()->routeIs('budget.my-plan')" wire:navigate>
                                 {{ __('My Plan') }}
                             </flux:sidebar.item>
                             <flux:sidebar.item icon="clipboard-document-list" :href="route('budget.check-ins')" :current="request()->routeIs('budget.check-in*')" wire:navigate>
                                 {{ __('Check-Ins') }}
                             </flux:sidebar.item>
-                        @endif
-                    @endauth
+                        </flux:sidebar.group>
+                    @endif
+                @endauth
+
+                {{-- Tools --}}
+                <flux:sidebar.group heading="Tools" class="grid">
                     <flux:sidebar.item icon="cog-6-tooth" :href="route('budget.setup')" :current="request()->routeIs('budget.setup')" wire:navigate>
                         {{ __('Calorie Setup') }}
                     </flux:sidebar.item>
@@ -49,6 +66,7 @@
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 
+                {{-- Coaching --}}
                 @auth
                     @if (auth()->user()->isCoach())
                         <flux:sidebar.group heading="Coaching" class="grid">

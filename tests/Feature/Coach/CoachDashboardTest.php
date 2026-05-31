@@ -2,6 +2,7 @@
 
 use App\Livewire\Coach\ClientProfile;
 use App\Livewire\Coach\Dashboard;
+use App\Models\CalorieProfile;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
@@ -101,6 +102,24 @@ it('does not allow deleting a non-client user', function () {
     )->toThrow(ModelNotFoundException::class);
 
     expect(User::find($member->id))->not->toBeNull();
+});
+
+it('shows calorie profile data on the client profile page', function () {
+    $coach = User::factory()->asCoach()->create();
+    $client = User::factory()->asClient()->create();
+
+    $client->calorieProfile()->create(
+        CalorieProfile::factory()->make(['user_id' => $client->id])->toArray()
+    );
+
+    $profile = $client->calorieProfile;
+
+    Livewire::actingAs($coach)
+        ->test(ClientProfile::class, ['client' => $client])
+        ->assertSee('Calorie Profile')
+        ->assertSee(number_format($profile->tdee))
+        ->assertSee(number_format($profile->daily_calorie_target))
+        ->assertSee($profile->goal->label());
 });
 
 it('shows client intake data on the profile page', function () {

@@ -1,4 +1,7 @@
-@php $latestPlanForView = $client->clientPlans()->first(); @endphp
+@php
+    $latestPlanForView = $client->clientPlans()->first();
+    $profile = $client->calorieProfile;
+@endphp
 
 <div class="w-full max-w-4xl">
     {{-- Back link --}}
@@ -39,6 +42,106 @@
             @endif
         </div>
     </div>
+
+    {{-- CALORIE PROFILE --}}
+    @if ($profile)
+        <div class="mb-8">
+            <flux:heading size="lg" class="mb-4">Calorie Profile</flux:heading>
+            <div class="rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
+
+                    {{-- Key numbers --}}
+                    <div class="grid grid-cols-2 gap-4 px-6 py-4 sm:grid-cols-4">
+                        <div>
+                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">TDEE</flux:text>
+                            <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ number_format($profile->tdee) }}</p>
+                            <flux:text class="text-xs text-zinc-400">cal / day</flux:text>
+                        </div>
+                        <div>
+                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Daily Target</flux:text>
+                            <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ number_format($profile->daily_calorie_target) }}</p>
+                            <flux:text class="text-xs text-zinc-400">cal / day</flux:text>
+                        </div>
+                        <div>
+                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Goal</flux:text>
+                            <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $profile->goal->label() }}</p>
+                        </div>
+                        <div>
+                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Deficit</flux:text>
+                            <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $profile->calorie_deficit_pct }}%</p>
+                        </div>
+                    </div>
+
+                    {{-- Macros --}}
+                    @if ($profile->carb_pct && $profile->protein_pct && $profile->fat_pct)
+                        <div class="px-6 py-4">
+                            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">Macros</p>
+                            @php
+                                $proteinG = round(($profile->protein_pct / 100) * $profile->daily_calorie_target / 4);
+                                $carbG    = round(($profile->carb_pct    / 100) * $profile->daily_calorie_target / 4);
+                                $fatG     = round(($profile->fat_pct     / 100) * $profile->daily_calorie_target / 9);
+                            @endphp
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Protein</flux:text>
+                                    <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $proteinG }}g <span class="font-normal text-zinc-400">({{ $profile->protein_pct }}%)</span></p>
+                                </div>
+                                <div>
+                                    <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Carbs</flux:text>
+                                    <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $carbG }}g <span class="font-normal text-zinc-400">({{ $profile->carb_pct }}%)</span></p>
+                                </div>
+                                <div>
+                                    <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Fat</flux:text>
+                                    <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $fatG }}g <span class="font-normal text-zinc-400">({{ $profile->fat_pct }}%)</span></p>
+                                </div>
+                            </div>
+                            @if ($profile->macro_preset)
+                                <flux:text class="mt-2 text-xs text-zinc-400">Preset: {{ $profile->macro_preset->label() }}</flux:text>
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- Physical stats --}}
+                    <div class="px-6 py-4">
+                        <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">Stats</p>
+                        <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            <div>
+                                <dt class="text-xs text-zinc-500 dark:text-zinc-400">Current weight</dt>
+                                <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->weight_lbs }} lbs</dd>
+                            </div>
+                            @if ($profile->goal_weight_lbs)
+                                <div>
+                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Goal weight</dt>
+                                    <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->goal_weight_lbs }} lbs</dd>
+                                </div>
+                            @endif
+                            <div>
+                                <dt class="text-xs text-zinc-500 dark:text-zinc-400">Height</dt>
+                                <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->height_feet }}'{{ $profile->height_inches }}"</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-zinc-500 dark:text-zinc-400">Age</dt>
+                                <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->age }}</dd>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <dt class="text-xs text-zinc-500 dark:text-zinc-400">Activity level</dt>
+                                <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">
+                                    {{ Str::of($profile->activity_factor->label())->before(' (') }}
+                                </dd>
+                            </div>
+                            @if ($profile->body_fat_pct)
+                                <div>
+                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Body fat</dt>
+                                    <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->body_fat_pct }}%</dd>
+                                </div>
+                            @endif
+                        </dl>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- PLAN --}}
     @if ($latestPlanForView)
