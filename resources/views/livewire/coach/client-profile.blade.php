@@ -66,10 +66,12 @@
                             <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Goal</flux:text>
                             <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $profile->goal->label() }}</p>
                         </div>
-                        <div>
-                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Deficit</flux:text>
-                            <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $profile->calorie_deficit_pct }}%</p>
-                        </div>
+                        @if ($profile->goal !== \App\Enums\Goal::Maintain)
+                            <div>
+                                <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">{{ $profile->goal === \App\Enums\Goal::Bulk ? 'Surplus' : 'Deficit' }}</flux:text>
+                                <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $profile->calorie_deficit_pct }}%</p>
+                            </div>
+                        @endif
                     </div>
 
                     {{-- Macros --}}

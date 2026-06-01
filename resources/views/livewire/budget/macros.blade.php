@@ -39,7 +39,7 @@
         </flux:card>
     @endif
 
-    <form wire:submit="save" class="space-y-4">
+    <form @auth wire:submit="save" @endauth class="space-y-4">
 
         {{-- Preset Selector --}}
         <flux:card class="p-0 overflow-hidden">
@@ -162,8 +162,8 @@
             </div>
         </flux:card>
 
-        <div class="flex justify-end pb-2">
-            @auth
+        @auth
+            <div class="flex justify-end pb-2">
                 <flux:button
                     type="submit"
                     variant="primary"
@@ -171,19 +171,26 @@
                 >
                     Save Macros
                 </flux:button>
-            @else
-                <div class="flex items-center gap-3">
-                    <flux:text class="text-zinc-500 dark:text-zinc-400 text-sm">Sign up to save your macros</flux:text>
+            </div>
+        @else
+            <div class="space-y-4">
+                <div class="flex justify-end pb-2">
                     <flux:button
                         type="button"
                         variant="primary"
                         :disabled="$this->macroTotal !== 100"
-                        wire:click="save"
+                        wire:click="calculate"
                     >
-                        Sign up &amp; save
+                        Calculate
                     </flux:button>
                 </div>
-            @endauth
-        </div>
+                <flux:callout variant="info" icon="information-circle">
+                    <flux:callout.heading>Want to save your macros?</flux:callout.heading>
+                    <flux:callout.text>
+                        <a href="{{ route('register') }}" wire:navigate class="font-medium underline">Sign up free</a> to save your macro targets and get full access to calorie tracking, weight logging, and more.
+                    </flux:callout.text>
+                </flux:callout>
+            </div>
+        @endauth
     </form>
 </section>

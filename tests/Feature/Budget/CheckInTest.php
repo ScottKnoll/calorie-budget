@@ -263,6 +263,97 @@ it('prevents a coach from editing another clients check-in', function () {
         ->call('startEditingNotes', $otherCheckIn->id);
 })->throws(ModelNotFoundException::class);
 
+// --- Editing a check-in ---
+
+it('pre-fills the form when editing an existing check-in', function () {
+    $client = User::factory()->asClient()->create();
+    $checkIn = CheckInModel::factory()->create([
+        'user_id' => $client->id,
+        'weight' => 180.5,
+        'week_feeling' => 'Felt good this week.',
+    ]);
+
+    Livewire::actingAs($client)
+        ->test(CheckIn::class, ['checkIn' => $checkIn])
+        ->assertSet('checkInId', $checkIn->id)
+        ->assertSet('weight', '180.5')
+        ->assertSet('week_feeling', 'Felt good this week.');
+});
+
+it('updates an existing check-in on submit', function () {
+    $client = User::factory()->asClient()->create();
+    $checkIn = CheckInModel::factory()->create(['user_id' => $client->id]);
+
+    Livewire::actingAs($client)
+        ->test(CheckIn::class, ['checkIn' => $checkIn])
+        ->set('weight', '175.0')
+        ->set('week_feeling', 'Updated feeling.')
+        ->set('went_well', 'Updated went well.')
+        ->set('felt_hardest', 'Updated hardest.')
+        ->set('hunger_energy_sleep', 'Updated hunger.')
+        ->set('activity_consistency', 'Updated activity.')
+        ->call('submit')
+        ->assertRedirect(route('budget.check-ins'));
+
+    expect($checkIn->fresh()->weight)->toBe(175.0);
+    expect($checkIn->fresh()->week_feeling)->toBe('Updated feeling.');
+});
+
+it('does not create a new check-in when updating', function () {
+    $client = User::factory()->asClient()->create();
+    $checkIn = CheckInModel::factory()->create(['user_id' => $client->id]);
+
+    Livewire::actingAs($client)
+        ->test(CheckIn::class, ['checkIn' => $checkIn])
+        ->set('weight', '190')
+        ->set('week_feeling', 'Updated.')
+        ->set('went_well', 'Fine.')
+        ->set('felt_hardest', 'Fine.')
+        ->set('hunger_energy_sleep', 'Fine.')
+        ->set('activity_consistency', 'Fine.')
+        ->call('submit');
+
+    expect(CheckInModel::where('user_id', $client->id)->count())->toBe(1);
+});
+
+it('prevents a client from editing another clients check-in', function () {
+    $client = User::factory()->asClient()->create();
+    $otherClient = User::factory()->asClient()->create();
+    $checkIn = CheckInModel::factory()->create(['user_id' => $otherClient->id]);
+
+    $this->actingAs($client)
+        ->get(route('budget.check-in.edit', $checkIn))
+        ->assertForbidden();
+});
+
+it('shows the edit check-in route to authenticated clients', function () {
+    $client = User::factory()->asClient()->create();
+    $checkIn = CheckInModel::factory()->create(['user_id' => $client->id]);
+
+    $this->actingAs($client)
+        ->get(route('budget.check-in.edit', $checkIn))
+        ->assertSuccessful();
+});
+
+it('shows Update Check-In button when editing', function () {
+    $client = User::factory()->asClient()->create();
+    $checkIn = CheckInModel::factory()->create(['user_id' => $client->id]);
+
+    Livewire::actingAs($client)
+        ->test(CheckIn::class, ['checkIn' => $checkIn])
+        ->assertSet('checkInId', $checkIn->id)
+        ->assertSee('Update Check-In');
+});
+
+it('shows Submit Check-In button for a new check-in', function () {
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($client)
+        ->test(CheckIn::class)
+        ->assertSet('checkInId', null)
+        ->assertSee('Submit Check-In');
+});
+
 // --- Client sees coach notes ---
 
 it('shows coach notes on the client check-ins page', function () {

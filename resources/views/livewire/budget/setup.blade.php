@@ -59,7 +59,7 @@
         </flux:card>
     @endif
 
-    <form wire:submit="save" class="space-y-4">
+    <form @auth wire:submit="save" @endauth class="space-y-4">
 
         {{-- Personal Info --}}
         <flux:card class="p-0 overflow-hidden">
@@ -243,15 +243,22 @@
             </div>
         </flux:card>
 
-        <div class="flex justify-end pb-2">
-            @auth
+        @auth
+            <div class="flex justify-end pb-2">
                 <flux:button type="submit" variant="primary">Save Settings</flux:button>
-            @else
-                <div class="flex items-center gap-3">
-                    <flux:text class="text-zinc-500 dark:text-zinc-400 text-sm">Sign up to save your settings</flux:text>
-                    <flux:button type="button" variant="primary" wire:click="save">Sign up &amp; save</flux:button>
+            </div>
+        @else
+            <div class="space-y-4">
+                <div class="flex justify-end pb-2">
+                    <flux:button type="button" variant="primary" wire:click="calculate">Calculate</flux:button>
                 </div>
-            @endauth
-        </div>
+                <flux:callout variant="info" icon="information-circle">
+                    <flux:callout.heading>Want to save your settings?</flux:callout.heading>
+                    <flux:callout.text>
+                        <a href="{{ route('register') }}" wire:navigate class="font-medium underline">Sign up free</a> to save your calorie setup, log daily meals, track your weight, and more.
+                    </flux:callout.text>
+                </flux:callout>
+            </div>
+        @endauth
     </form>
 </section>

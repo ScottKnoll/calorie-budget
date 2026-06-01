@@ -126,6 +126,32 @@ class Macros extends Component
             ->all();
     }
 
+    public function calculate(): void
+    {
+        $this->validate([
+            'macro_preset' => ['nullable', new Enum(MacroPreset::class)],
+            'carb_pct' => ['required', 'integer', 'min:0', 'max:100'],
+            'protein_pct' => ['required', 'integer', 'min:0', 'max:100'],
+            'fat_pct' => ['required', 'integer', 'min:0', 'max:100'],
+        ]);
+
+        if ($this->macroTotal !== 100) {
+            $this->addError('macro_total', 'Carb, protein, and fat percentages must add up to 100%.');
+
+            return;
+        }
+
+        session(['macros_prefill' => [
+            'macro_preset' => $this->macro_preset,
+            'carb_pct' => $this->carb_pct,
+            'protein_pct' => $this->protein_pct,
+            'fat_pct' => $this->fat_pct,
+            'guestCalorieTarget' => $this->guestCalorieTarget,
+        ]]);
+
+        $this->js('window.scrollTo({ top: 0, behavior: "smooth" })');
+    }
+
     public function save(): void
     {
         if (! auth()->check()) {

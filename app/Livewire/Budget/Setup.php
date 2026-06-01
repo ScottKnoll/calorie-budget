@@ -211,6 +211,48 @@ class Setup extends Component
         }
     }
 
+    public function calculate(): void
+    {
+        $isLeanMass = $this->formula === FormulaType::LeanMass->value;
+
+        $this->validate([
+            'gender' => ['required', new Enum(Gender::class)],
+            'age' => [$isLeanMass ? 'nullable' : 'required', 'integer', 'min:1', 'max:120'],
+            'height_feet' => [$isLeanMass ? 'nullable' : 'required', 'integer', 'min:1', 'max:9'],
+            'height_inches' => ['nullable', 'integer', 'min:0', 'max:11'],
+            'weight_lbs' => ['required', 'numeric', 'min:50', 'max:1500'],
+            'goal_weight_lbs' => ['nullable', 'numeric', 'min:50', 'max:1500'],
+            'start_date' => ['nullable', 'date'],
+            'calorie_deficit_pct' => ['required', 'integer', 'min:5', 'max:50'],
+            'activity_factor' => ['required', new Enum(ActivityFactor::class)],
+            'exercise_factor' => ['required', new Enum(ExerciseFactor::class)],
+            'formula' => ['required', new Enum(FormulaType::class)],
+            'body_fat_pct' => [$isLeanMass ? 'required' : 'nullable', 'numeric', 'min:1', 'max:70'],
+            'goal' => ['required', new Enum(Goal::class)],
+            'daily_calorie_target' => ['required', 'integer', 'min:500', 'max:9999'],
+        ]);
+
+        session(['setup_prefill' => [
+            'gender' => $this->gender,
+            'age' => $this->age,
+            'height_feet' => $this->height_feet,
+            'height_inches' => $this->height_inches,
+            'weight_lbs' => $this->weight_lbs,
+            'goal_weight_lbs' => $this->goal_weight_lbs,
+            'start_date' => $this->start_date,
+            'calorie_deficit_pct' => $this->calorie_deficit_pct,
+            'deficit_preset' => $this->deficit_preset,
+            'activity_factor' => $this->activity_factor,
+            'exercise_factor' => $this->exercise_factor,
+            'formula' => $this->formula,
+            'body_fat_pct' => $this->body_fat_pct,
+            'goal' => $this->goal,
+            'daily_calorie_target' => $this->daily_calorie_target,
+        ]]);
+
+        $this->js('window.scrollTo({ top: 0, behavior: "smooth" })');
+    }
+
     public function save(): void
     {
         if (! auth()->check()) {

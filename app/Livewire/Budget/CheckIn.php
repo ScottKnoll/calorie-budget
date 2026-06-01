@@ -2,13 +2,17 @@
 
 namespace App\Livewire\Budget;
 
+use App\Models\CheckIn as CheckInModel;
 use Illuminate\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Weekly Check-In')]
+#[Title('Check-In')]
 class CheckIn extends Component
 {
+    public ?int $checkInId = null;
+
     public string $weight = '';
 
     public string $week_feeling = '';
@@ -23,11 +27,34 @@ class CheckIn extends Component
 
     public string $need_help = '';
 
-    public function mount(): void
+    public function mount(?CheckInModel $checkIn = null): void
     {
         if (! auth()->user()->isClient()) {
             $this->redirectRoute('dashboard', navigate: true);
+
+            return;
         }
+
+        if ($checkIn) {
+            if ($checkIn->user_id !== auth()->id()) {
+                abort(403);
+            }
+
+            $this->checkInId = $checkIn->id;
+            $this->weight = (string) $checkIn->weight;
+            $this->week_feeling = $checkIn->week_feeling;
+            $this->went_well = $checkIn->went_well;
+            $this->felt_hardest = $checkIn->felt_hardest;
+            $this->hunger_energy_sleep = $checkIn->hunger_energy_sleep;
+            $this->activity_consistency = $checkIn->activity_consistency;
+            $this->need_help = $checkIn->need_help ?? '';
+        }
+    }
+
+    #[Computed]
+    public function isEditing(): bool
+    {
+        return $this->checkInId !== null;
     }
 
     public function submit(): void
@@ -46,7 +73,14 @@ class CheckIn extends Component
             $validated['need_help'] = null;
         }
 
-        auth()->user()->checkIns()->create($validated);
+        if ($this->checkInId) {
+            CheckInModel::where('id', $this->checkInId)
+                ->where('user_id', auth()->id())
+                ->firstOrFail()
+                ->update($validated);
+        } else {
+            auth()->user()->checkIns()->create($validated);
+        }
 
         $this->redirectRoute('budget.check-ins', navigate: true);
     }

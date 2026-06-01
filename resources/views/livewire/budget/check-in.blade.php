@@ -1,6 +1,6 @@
 <section class="w-full max-w-2xl">
     <div class="mb-8">
-        <flux:heading size="xl">Weekly Check-In</flux:heading>
+        <flux:heading size="xl">{{ $this->isEditing ? 'Edit Check-In' : 'Weekly Check-In' }}</flux:heading>
         <flux:text class="mt-1">Take a few minutes to reflect on your week. Your coach will review your responses.</flux:text>
     </div>
 
@@ -50,9 +50,12 @@
             <flux:error name="need_help" />
         </flux:field>
 
-        <div class="pt-2">
-            <flux:button type="submit" variant="primary" class="w-full">
-                Submit Check-In
+        <div class="flex items-center justify-end gap-3 pt-2">
+            @if ($this->isEditing)
+                <flux:button :href="route('budget.check-ins')" wire:navigate variant="ghost">Cancel</flux:button>
+            @endif
+            <flux:button type="submit" variant="primary">
+                {{ $this->isEditing ? 'Update Check-In' : 'Submit Check-In' }}
             </flux:button>
         </div>
 

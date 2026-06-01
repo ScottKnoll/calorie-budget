@@ -25,7 +25,10 @@
                     <div class="p-5">
                         <div class="mb-4 flex items-center justify-between">
                             <flux:heading size="sm">{{ $checkIn->created_at->format('F j, Y') }}</flux:heading>
-                            <flux:badge color="zinc">{{ number_format($checkIn->weight, 1) }} lbs</flux:badge>
+                            <div class="flex items-center gap-2">
+                                <flux:button :href="route('budget.check-in.edit', $checkIn)" wire:navigate size="sm" variant="ghost" icon="pencil-square">Edit</flux:button>
+                                <flux:badge color="zinc">{{ number_format($checkIn->weight, 1) }} lbs</flux:badge>
+                            </div>
                         </div>
 
                         <div class="space-y-3">
