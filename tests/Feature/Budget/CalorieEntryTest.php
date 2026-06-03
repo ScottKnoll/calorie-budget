@@ -325,6 +325,24 @@ it('validates that macro grams must be non-negative integers', function () {
         ->assertHasErrors(['carbs_grams']);
 });
 
+it('saves weight without creating a calorie entry when calories are omitted', function () {
+    $user = User::factory()->create();
+    CalorieProfile::factory()->for($user)->create(['daily_calorie_target' => 2000]);
+
+    Livewire::actingAs($user)
+        ->test(DailyEntry::class)
+        ->set('weight_lbs', 185.5)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect(CalorieEntry::where('user_id', $user->id)->whereDate('date', Carbon::today())->first())
+        ->toBeNull();
+
+    expect($user->weightEntries()->whereDate('date', Carbon::today())->first())
+        ->not->toBeNull()
+        ->weight_lbs->toBe(185.5);
+});
+
 it('clears macro grams when navigating to a day with no entry', function () {
     $user = User::factory()->create();
     CalorieProfile::factory()->for($user)->create();

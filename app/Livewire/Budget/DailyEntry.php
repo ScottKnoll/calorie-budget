@@ -221,7 +221,7 @@ class DailyEntry extends Component
     public function save(): void
     {
         $this->validate([
-            'calories_consumed' => ['required', 'integer', 'min:0', 'max:99999'],
+            'calories_consumed' => ['nullable', 'integer', 'min:0', 'max:99999'],
             'carbs_grams' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'protein_grams' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'fat_grams' => ['nullable', 'integer', 'min:0', 'max:9999'],
@@ -232,27 +232,29 @@ class DailyEntry extends Component
         /** @var User $user */
         $user = Auth::user();
 
-        $existingCalorieEntry = $user->calorieEntries()
-            ->whereDate('date', $this->date)
-            ->first();
+        if ($this->calories_consumed !== null) {
+            $existingCalorieEntry = $user->calorieEntries()
+                ->whereDate('date', $this->date)
+                ->first();
 
-        if ($existingCalorieEntry) {
-            $existingCalorieEntry->update([
-                'calories_consumed' => $this->calories_consumed,
-                'carbs_grams' => $this->carbs_grams,
-                'protein_grams' => $this->protein_grams,
-                'fat_grams' => $this->fat_grams,
-                'notes' => $this->notes ?: null,
-            ]);
-        } else {
-            $user->calorieEntries()->create([
-                'date' => $this->date,
-                'calories_consumed' => $this->calories_consumed,
-                'carbs_grams' => $this->carbs_grams,
-                'protein_grams' => $this->protein_grams,
-                'fat_grams' => $this->fat_grams,
-                'notes' => $this->notes ?: null,
-            ]);
+            if ($existingCalorieEntry) {
+                $existingCalorieEntry->update([
+                    'calories_consumed' => $this->calories_consumed,
+                    'carbs_grams' => $this->carbs_grams,
+                    'protein_grams' => $this->protein_grams,
+                    'fat_grams' => $this->fat_grams,
+                    'notes' => $this->notes ?: null,
+                ]);
+            } else {
+                $user->calorieEntries()->create([
+                    'date' => $this->date,
+                    'calories_consumed' => $this->calories_consumed,
+                    'carbs_grams' => $this->carbs_grams,
+                    'protein_grams' => $this->protein_grams,
+                    'fat_grams' => $this->fat_grams,
+                    'notes' => $this->notes ?: null,
+                ]);
+            }
         }
 
         if ($this->weight_lbs !== null) {

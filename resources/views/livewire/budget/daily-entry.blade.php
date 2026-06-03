@@ -89,14 +89,13 @@
         {{-- Log form --}}
         <form wire:submit="save" class="space-y-5">
             <flux:field>
-                <flux:label>Calories Consumed</flux:label>
+                <flux:label>Calories Consumed (Optional)</flux:label>
                 <flux:input
                     wire:model="calories_consumed"
                     type="number"
                     min="0"
                     max="99999"
                     placeholder="e.g. 1,850"
-                    required
                 />
                 <flux:error name="calories_consumed" />
             </flux:field>
