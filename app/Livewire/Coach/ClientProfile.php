@@ -3,9 +3,12 @@
 namespace App\Livewire\Coach;
 
 use App\Concerns\IntakeLabelOptions;
+use App\Enums\MacroPreset;
 use App\Models\CheckIn;
 use App\Models\User;
+use Illuminate\Validation\Rules\Enum;
 use Illuminate\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -27,6 +30,18 @@ class ClientProfile extends Component
     public string $coachGeneral = '';
 
     public string $coachFocusNextWeek = '';
+
+    public bool $editingCalorieProfile = false;
+
+    public int $editCalorieTarget = 0;
+
+    public ?string $editMacroPreset = null;
+
+    public int $editCarbPct = 50;
+
+    public int $editProteinPct = 30;
+
+    public int $editFatPct = 20;
 
     public function mount(User $client): void
     {
@@ -82,6 +97,111 @@ class ClientProfile extends Component
         ]);
 
         $this->cancelEditingNotes();
+    }
+
+    public function startEditingCalorieProfile(): void
+    {
+        $profile = $this->client->calorieProfile;
+
+        if (! $profile) {
+            return;
+        }
+
+        $this->editCalorieTarget = $profile->daily_calorie_target;
+        $this->editMacroPreset = $profile->macro_preset?->value;
+        $this->editCarbPct = $profile->carb_pct;
+        $this->editProteinPct = $profile->protein_pct;
+        $this->editFatPct = $profile->fat_pct;
+        $this->editingCalorieProfile = true;
+    }
+
+    public function cancelEditingCalorieProfile(): void
+    {
+        $this->editingCalorieProfile = false;
+        $this->reset(['editCalorieTarget', 'editMacroPreset', 'editCarbPct', 'editProteinPct', 'editFatPct']);
+    }
+
+    #[Computed]
+    public function editMacroTotal(): int
+    {
+        return $this->editCarbPct + $this->editProteinPct + $this->editFatPct;
+    }
+
+    #[Computed]
+    public function editCarbGrams(): int
+    {
+        if ($this->editCalorieTarget === 0) {
+            return 0;
+        }
+
+        return (int) round($this->editCarbPct / 100 * $this->editCalorieTarget / 4);
+    }
+
+    #[Computed]
+    public function editProteinGrams(): int
+    {
+        if ($this->editCalorieTarget === 0) {
+            return 0;
+        }
+
+        return (int) round($this->editProteinPct / 100 * $this->editCalorieTarget / 4);
+    }
+
+    #[Computed]
+    public function editFatGrams(): int
+    {
+        if ($this->editCalorieTarget === 0) {
+            return 0;
+        }
+
+        return (int) round($this->editFatPct / 100 * $this->editCalorieTarget / 9);
+    }
+
+    public function updatedEditMacroPreset(?string $value): void
+    {
+        if (! $value) {
+            return;
+        }
+
+        $preset = MacroPreset::tryFrom($value);
+
+        if ($preset && $preset->percentages() !== null) {
+            [$this->editCarbPct, $this->editProteinPct, $this->editFatPct] = $preset->percentages();
+        }
+    }
+
+    public function saveCalorieProfile(): void
+    {
+        $validated = $this->validate([
+            'editCalorieTarget' => ['required', 'integer', 'min:500', 'max:9999'],
+            'editMacroPreset' => ['nullable', new Enum(MacroPreset::class)],
+            'editCarbPct' => ['required', 'integer', 'min:0', 'max:100'],
+            'editProteinPct' => ['required', 'integer', 'min:0', 'max:100'],
+            'editFatPct' => ['required', 'integer', 'min:0', 'max:100'],
+        ]);
+
+        if ($this->editMacroTotal !== 100) {
+            $this->addError('editCarbPct', 'Carb, protein, and fat percentages must add up to 100%.');
+
+            return;
+        }
+
+        $this->client->calorieProfile->update([
+            'daily_calorie_target' => $validated['editCalorieTarget'],
+            'macro_preset' => $validated['editMacroPreset'],
+            'carb_pct' => $validated['editCarbPct'],
+            'protein_pct' => $validated['editProteinPct'],
+            'fat_pct' => $validated['editFatPct'],
+        ]);
+
+        $this->cancelEditingCalorieProfile();
+    }
+
+    public function macroPresetOptions(): array
+    {
+        return collect(MacroPreset::cases())
+            ->mapWithKeys(fn (MacroPreset $p) => [$p->value => $p->label()])
+            ->all();
     }
 
     private function resolveCheckIn(int $checkInId): CheckIn

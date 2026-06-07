@@ -45,102 +45,133 @@
         </div>
     </div>
 
-    {{-- CALORIE PROFILE (always visible) --}}
+    {{-- PRESCRIBED TARGETS --}}
     @if ($profile)
         <div class="mb-8">
-            <flux:heading size="lg" class="mb-4">Calorie Profile</flux:heading>
+            <div class="mb-4 flex items-center justify-between">
+                <flux:heading size="lg">Prescribed Targets</flux:heading>
+                @if (! $editingCalorieProfile)
+                    <flux:button wire:click="startEditingCalorieProfile" variant="ghost" size="sm" icon="pencil">
+                        Edit targets
+                    </flux:button>
+                @endif
+            </div>
+
             <div class="rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
                 <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
 
-                    {{-- Key numbers --}}
-                    <div class="grid grid-cols-2 gap-4 px-6 py-4 sm:grid-cols-4">
-                        <div>
-                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">TDEE</flux:text>
-                            <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ number_format($profile->tdee) }}</p>
-                            <flux:text class="text-xs text-zinc-400">cal / day</flux:text>
-                        </div>
-                        <div>
-                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Daily Target</flux:text>
-                            <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ number_format($profile->daily_calorie_target) }}</p>
-                            <flux:text class="text-xs text-zinc-400">cal / day</flux:text>
-                        </div>
-                        <div>
-                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Goal</flux:text>
-                            <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $profile->goal->label() }}</p>
-                        </div>
-                        @if ($profile->goal !== \App\Enums\Goal::Maintain)
-                            <div>
-                                <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">{{ $profile->goal === \App\Enums\Goal::Bulk ? 'Surplus' : 'Deficit' }}</flux:text>
-                                <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $profile->calorie_deficit_pct }}%</p>
-                            </div>
-                        @endif
-                    </div>
+                    @if ($editingCalorieProfile)
+                        {{-- Inline edit form --}}
+                        <div class="px-6 py-5">
+                            <div class="space-y-4">
+                                <flux:field>
+                                    <flux:label>Daily Calorie Target</flux:label>
+                                    <flux:input wire:model.live="editCalorieTarget" type="number" min="500" max="9999" />
+                                    <flux:error name="editCalorieTarget" />
+                                </flux:field>
 
-                    {{-- Macros --}}
-                    @if ($profile->carb_pct && $profile->protein_pct && $profile->fat_pct)
-                        <div class="px-6 py-4">
-                            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">Macros</p>
+                                <flux:field>
+                                    <flux:label>Macro Preset <flux:badge size="sm" color="zinc">optional</flux:badge></flux:label>
+                                    <flux:select wire:model.live="editMacroPreset">
+                                        <flux:select.option value="">— None —</flux:select.option>
+                                        @foreach ($this->macroPresetOptions() as $value => $label)
+                                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                                        @endforeach
+                                    </flux:select>
+                                    <flux:error name="editMacroPreset" />
+                                </flux:field>
+
+                                <div class="grid grid-cols-3 gap-3">
+                                    <flux:field>
+                                        <div class="flex items-baseline justify-between">
+                                            <flux:label>Carbs %</flux:label>
+                                            @if ($this->editCarbGrams > 0)
+                                                <span class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{{ $this->editCarbGrams }}g</span>
+                                            @endif
+                                        </div>
+                                        <flux:input wire:model.live="editCarbPct" type="number" min="0" max="100" />
+                                    </flux:field>
+                                    <flux:field>
+                                        <div class="flex items-baseline justify-between">
+                                            <flux:label>Protein %</flux:label>
+                                            @if ($this->editProteinGrams > 0)
+                                                <span class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{{ $this->editProteinGrams }}g</span>
+                                            @endif
+                                        </div>
+                                        <flux:input wire:model.live="editProteinPct" type="number" min="0" max="100" />
+                                    </flux:field>
+                                    <flux:field>
+                                        <div class="flex items-baseline justify-between">
+                                            <flux:label>Fat %</flux:label>
+                                            @if ($this->editFatGrams > 0)
+                                                <span class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{{ $this->editFatGrams }}g</span>
+                                            @endif
+                                        </div>
+                                        <flux:input wire:model.live="editFatPct" type="number" min="0" max="100" />
+                                    </flux:field>
+                                </div>
+
+                                <div class="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+                                    <div class="flex items-center justify-between">
+                                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">Total</flux:text>
+                                        <span class="text-base font-bold {{ $this->editMacroTotal === 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500' }}">
+                                            {{ $this->editMacroTotal }}%
+                                        </span>
+                                    </div>
+                                    @if ($this->editMacroTotal !== 100)
+                                        <flux:text size="sm" class="mt-1 text-red-500">
+                                            Must add up to 100%. Currently {{ $this->editMacroTotal > 100 ? 'over' : 'under' }} by {{ abs(100 - $this->editMacroTotal) }}%.
+                                        </flux:text>
+                                    @endif
+                                </div>
+
+                                <flux:error name="editCarbPct" />
+                            </div>
+
+                            <div class="mt-4 flex items-center justify-end gap-3">
+                                <flux:button wire:click="cancelEditingCalorieProfile" variant="ghost" size="sm">Cancel</flux:button>
+                                <flux:button wire:click="saveCalorieProfile" variant="primary" size="sm" wire:loading.attr="disabled">Save targets</flux:button>
+                            </div>
+                        </div>
+                    @else
+                        {{-- Daily calorie target --}}
+                        <div class="grid grid-cols-2 gap-4 px-6 py-4 sm:grid-cols-4">
+                            <div>
+                                <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Daily Target</flux:text>
+                                <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ number_format($profile->daily_calorie_target) }}</p>
+                                <flux:text class="text-xs text-zinc-400">cal / day</flux:text>
+                            </div>
+                        </div>
+
+                        {{-- Macros --}}
+                        @if ($profile->carb_pct && $profile->protein_pct && $profile->fat_pct)
                             @php
                                 $proteinG = round(($profile->protein_pct / 100) * $profile->daily_calorie_target / 4);
                                 $carbG    = round(($profile->carb_pct    / 100) * $profile->daily_calorie_target / 4);
                                 $fatG     = round(($profile->fat_pct     / 100) * $profile->daily_calorie_target / 9);
                             @endphp
-                            <div class="grid grid-cols-3 gap-4">
-                                <div>
-                                    <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Protein</flux:text>
-                                    <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $proteinG }}g <span class="font-normal text-zinc-400">({{ $profile->protein_pct }}%)</span></p>
+                            <div class="px-6 py-4">
+                                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">Macros</p>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Carbs</flux:text>
+                                        <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $carbG }}g <span class="font-normal text-zinc-400">({{ $profile->carb_pct }}%)</span></p>
+                                    </div>
+                                    <div>
+                                        <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Protein</flux:text>
+                                        <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $proteinG }}g <span class="font-normal text-zinc-400">({{ $profile->protein_pct }}%)</span></p>
+                                    </div>
+                                    <div>
+                                        <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Fat</flux:text>
+                                        <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $fatG }}g <span class="font-normal text-zinc-400">({{ $profile->fat_pct }}%)</span></p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Carbs</flux:text>
-                                    <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $carbG }}g <span class="font-normal text-zinc-400">({{ $profile->carb_pct }}%)</span></p>
-                                </div>
-                                <div>
-                                    <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Fat</flux:text>
-                                    <p class="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-white">{{ $fatG }}g <span class="font-normal text-zinc-400">({{ $profile->fat_pct }}%)</span></p>
-                                </div>
+                                @if ($profile->macro_preset)
+                                    <flux:text class="mt-2 text-xs text-zinc-400">Preset: {{ $profile->macro_preset->label() }}</flux:text>
+                                @endif
                             </div>
-                            @if ($profile->macro_preset)
-                                <flux:text class="mt-2 text-xs text-zinc-400">Preset: {{ $profile->macro_preset->label() }}</flux:text>
-                            @endif
-                        </div>
+                        @endif
                     @endif
-
-                    {{-- Physical stats --}}
-                    <div class="px-6 py-4">
-                        <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">Stats</p>
-                        <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                            <div>
-                                <dt class="text-xs text-zinc-500 dark:text-zinc-400">Current weight</dt>
-                                <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->weight_lbs }} lbs</dd>
-                            </div>
-                            @if ($profile->goal_weight_lbs)
-                                <div>
-                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Goal weight</dt>
-                                    <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->goal_weight_lbs }} lbs</dd>
-                                </div>
-                            @endif
-                            <div>
-                                <dt class="text-xs text-zinc-500 dark:text-zinc-400">Height</dt>
-                                <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->height_feet }}'{{ $profile->height_inches }}"</dd>
-                            </div>
-                            <div>
-                                <dt class="text-xs text-zinc-500 dark:text-zinc-400">Age</dt>
-                                <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->age }}</dd>
-                            </div>
-                            <div class="sm:col-span-2">
-                                <dt class="text-xs text-zinc-500 dark:text-zinc-400">Activity level</dt>
-                                <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">
-                                    {{ Str::of($profile->activity_factor->label())->before(' (') }}
-                                </dd>
-                            </div>
-                            @if ($profile->body_fat_pct)
-                                <div>
-                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Body fat</dt>
-                                    <dd class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">{{ $profile->body_fat_pct }}%</dd>
-                                </div>
-                            @endif
-                        </dl>
-                    </div>
 
                 </div>
             </div>
