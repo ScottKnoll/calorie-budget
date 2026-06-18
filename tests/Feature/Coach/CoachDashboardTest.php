@@ -119,7 +119,24 @@ it('shows calorie profile data on the client profile page', function () {
         ->assertSee('Calorie Profile')
         ->assertSee(number_format($profile->tdee))
         ->assertSee(number_format($profile->daily_calorie_target))
-        ->assertSee($profile->goal->label());
+        ->assertSee($profile->goal->label())
+        ->assertSee($profile->weight_lbs.' ')
+        ->assertSee('Starting Weight')
+        ->assertSee('Prescribed Targets');
+});
+
+it('shows goal weight when set on the client profile page', function () {
+    $coach = User::factory()->asCoach()->create();
+    $client = User::factory()->asClient()->create();
+
+    $client->calorieProfile()->create(
+        CalorieProfile::factory()->make(['user_id' => $client->id, 'goal_weight_lbs' => 165])->toArray()
+    );
+
+    Livewire::actingAs($coach)
+        ->test(ClientProfile::class, ['client' => $client])
+        ->assertSee('Goal Weight')
+        ->assertSee('165');
 });
 
 it('shows client intake data on the profile page', function () {

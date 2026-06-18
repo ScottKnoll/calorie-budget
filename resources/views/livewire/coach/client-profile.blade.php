@@ -45,6 +45,43 @@
         </div>
     </div>
 
+    {{-- CALORIE PROFILE --}}
+    @if ($profile)
+        <div class="mb-8">
+            <flux:heading size="lg" class="mb-4">Calorie Profile</flux:heading>
+            <div class="rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-5 px-6 py-5 sm:grid-cols-4">
+                    <div>
+                        <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">TDEE</flux:text>
+                        <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ number_format($profile->tdee) }}</p>
+                        <flux:text class="text-xs text-zinc-400">cal / day</flux:text>
+                    </div>
+                    <div>
+                        <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Goal</flux:text>
+                        <p class="mt-0.5 text-xl font-bold text-zinc-900 dark:text-white">{{ $profile->goal->label() }}</p>
+                    </div>
+                    <div>
+                        <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Starting Weight</flux:text>
+                        <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ $profile->weight_lbs }} <span class="text-sm font-normal text-zinc-400">lbs</span></p>
+                    </div>
+                    @if ($profile->goal_weight_lbs)
+                        <div>
+                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Goal Weight</flux:text>
+                            <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ $profile->goal_weight_lbs }} <span class="text-sm font-normal text-zinc-400">lbs</span></p>
+                        </div>
+                    @endif
+                    @if ($this->latestWeightEntry)
+                        <div>
+                            <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Latest Weight</flux:text>
+                            <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ number_format($this->latestWeightEntry->weight_lbs, 1) }} <span class="text-sm font-normal text-zinc-400">lbs</span></p>
+                            <flux:text class="text-xs text-zinc-400">{{ $this->latestWeightEntry->date->format('M j, Y') }}</flux:text>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- PRESCRIBED TARGETS --}}
     @if ($profile)
         <div class="mb-8">
