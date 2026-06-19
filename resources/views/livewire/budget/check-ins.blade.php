@@ -31,31 +31,31 @@
                             </div>
                         </div>
 
-                        <div class="space-y-3">
+                        <div class="space-y-4">
                             <div>
-                                <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">How did the week feel overall?</flux:text>
-                                <flux:text class="mt-0.5">{{ $checkIn->week_feeling }}</flux:text>
+                                <p class="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">How did the week feel overall?</p>
+                                <flux:text class="mt-1">{{ $checkIn->week_feeling }}</flux:text>
                             </div>
                             <div>
-                                <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">What went well?</flux:text>
-                                <flux:text class="mt-0.5">{{ $checkIn->went_well }}</flux:text>
+                                <p class="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">What went well?</p>
+                                <flux:text class="mt-1">{{ $checkIn->went_well }}</flux:text>
                             </div>
                             <div>
-                                <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">What felt hardest?</flux:text>
-                                <flux:text class="mt-0.5">{{ $checkIn->felt_hardest }}</flux:text>
+                                <p class="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">What felt hardest?</p>
+                                <flux:text class="mt-1">{{ $checkIn->felt_hardest }}</flux:text>
                             </div>
                             <div>
-                                <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Hunger, energy & sleep</flux:text>
-                                <flux:text class="mt-0.5">{{ $checkIn->hunger_energy_sleep }}</flux:text>
+                                <p class="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">Hunger, energy & sleep</p>
+                                <flux:text class="mt-1">{{ $checkIn->hunger_energy_sleep }}</flux:text>
                             </div>
                             <div>
-                                <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Activity consistency</flux:text>
-                                <flux:text class="mt-0.5">{{ $checkIn->activity_consistency }}</flux:text>
+                                <p class="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">Activity consistency</p>
+                                <flux:text class="mt-1">{{ $checkIn->activity_consistency }}</flux:text>
                             </div>
                             @if ($checkIn->need_help)
                                 <div>
-                                    <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Needs help with</flux:text>
-                                    <flux:text class="mt-0.5">{{ $checkIn->need_help }}</flux:text>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">Needs help with</p>
+                                    <flux:text class="mt-1">{{ $checkIn->need_help }}</flux:text>
                                 </div>
                             @endif
                         </div>
@@ -65,8 +65,8 @@
                     <div class="border-t border-zinc-100 dark:border-zinc-800">
                         @if ($checkIn->hasCoachNotes())
                             <div class="p-5">
-                                <flux:text class="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Coach Notes</flux:text>
-                                <div class="space-y-3">
+                                <p class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">Coach Notes</p>
+                                <div class="space-y-4">
                                     @foreach ([
                                         ['value' => $checkIn->coach_workout, 'label' => 'Workout'],
                                         ['value' => $checkIn->coach_nutrition, 'label' => 'Nutrition'],
@@ -76,8 +76,8 @@
                                     ] as $note)
                                         @if ($note['value'])
                                             <div>
-                                                <flux:text class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ $note['label'] }}</flux:text>
-                                                <flux:text class="mt-0.5 whitespace-pre-line">{{ $note['value'] }}</flux:text>
+                                                <p class="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">{{ $note['label'] }}</p>
+                                                <flux:text class="mt-1 whitespace-pre-line">{{ $note['value'] }}</flux:text>
                                             </div>
                                         @endif
                                     @endforeach
