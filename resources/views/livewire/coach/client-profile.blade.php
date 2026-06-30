@@ -261,6 +261,65 @@
 
         {{-- CHECK-INS tab --}}
         <div x-show="tab === 'check-ins'">
+            @php
+                $nextCheckInDate = $client->next_check_in_at;
+                $isDue = $nextCheckInDate && $nextCheckInDate->lte(now());
+            @endphp
+
+            <div class="mb-4 overflow-hidden rounded-xl border {{ $isDue ? 'border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/20' : 'border-dashed border-zinc-300 dark:border-zinc-600' }}">
+                @if ($editingNextCheckIn)
+                    <div class="p-4">
+                        <p class="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">Set next check-in date</p>
+                        <div class="flex items-start gap-3">
+                            <div class="flex-1">
+                                <flux:input
+                                    wire:model="nextCheckInInput"
+                                    type="datetime-local"
+                                    :min="now()->format('Y-m-d\TH:i')"
+                                />
+                                <flux:error name="nextCheckInInput" class="mt-1" />
+                            </div>
+                            <flux:button wire:click="saveNextCheckInDate" variant="primary" size="sm">Save</flux:button>
+                            <flux:button wire:click="cancelEditingNextCheckIn" variant="ghost" size="sm">Cancel</flux:button>
+                        </div>
+                    </div>
+                @else
+                    <div class="flex items-center justify-between p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full {{ $isDue ? 'bg-amber-100 dark:bg-amber-900/40' : 'bg-zinc-100 dark:bg-zinc-800' }}">
+                                <flux:icon.calendar-days class="h-4 w-4 {{ $isDue ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-400 dark:text-zinc-500' }}" />
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-semibold text-zinc-900 dark:text-white">Next Check-In</span>
+                                    @if ($nextCheckInDate)
+                                        @if ($isDue)
+                                            <flux:badge color="yellow" size="sm">Due</flux:badge>
+                                        @else
+                                            <flux:badge color="zinc" size="sm">Upcoming</flux:badge>
+                                        @endif
+                                    @endif
+                                </div>
+                                <flux:text class="mt-0.5 text-xs">
+                                    @if ($nextCheckInDate)
+                                        @if ($isDue)
+                                            Was due {{ $nextCheckInDate->format('F j \a\t g:i A') }} &middot; {{ $nextCheckInDate->diffForHumans() }}
+                                        @else
+                                            {{ $nextCheckInDate->format('F j, Y \a\t g:i A') }} &middot; {{ $nextCheckInDate->diffForHumans() }}
+                                        @endif
+                                    @else
+                                        Not scheduled yet
+                                    @endif
+                                </flux:text>
+                            </div>
+                        </div>
+                        <flux:button wire:click="startEditingNextCheckIn" variant="ghost" size="sm" icon="{{ $nextCheckInDate ? 'pencil' : 'plus' }}">
+                            {{ $nextCheckInDate ? 'Edit' : 'Add date' }}
+                        </flux:button>
+                    </div>
+                @endif
+            </div>
+
             @if ($checkIns->isEmpty())
                 <div class="rounded-xl border border-zinc-200 bg-white px-6 py-12 text-center dark:border-zinc-700 dark:bg-zinc-900">
                     <flux:heading size="lg" class="mb-1">No check-ins yet</flux:heading>

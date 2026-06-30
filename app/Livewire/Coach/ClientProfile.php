@@ -22,6 +22,10 @@ class ClientProfile extends Component
 
     public ?int $editingCheckInId = null;
 
+    public bool $editingNextCheckIn = false;
+
+    public string $nextCheckInInput = '';
+
     public string $coachWorkout = '';
 
     public string $coachNutrition = '';
@@ -55,6 +59,34 @@ class ClientProfile extends Component
         }
 
         $this->client = $client;
+    }
+
+    public function startEditingNextCheckIn(): void
+    {
+        $dt = $this->client->next_check_in_at;
+        $this->nextCheckInInput = $dt ? $dt->format('Y-m-d\TH:i') : '';
+        $this->editingNextCheckIn = true;
+    }
+
+    public function cancelEditingNextCheckIn(): void
+    {
+        $this->editingNextCheckIn = false;
+        $this->nextCheckInInput = '';
+    }
+
+    public function saveNextCheckInDate(): void
+    {
+        $validated = $this->validate([
+            'nextCheckInInput' => ['required', 'date', 'after_or_equal:now'],
+        ], [
+            'nextCheckInInput.required' => 'Please select a date and time.',
+            'nextCheckInInput.after_or_equal' => 'The date and time must be in the future.',
+        ]);
+
+        $this->client->update(['next_check_in_at' => $validated['nextCheckInInput']]);
+        $this->client->refresh();
+
+        $this->cancelEditingNextCheckIn();
     }
 
     public function startEditingNotes(int $checkInId): void

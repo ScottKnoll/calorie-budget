@@ -19,7 +19,8 @@ class CheckIns extends Component
     public function render(): View
     {
         $checkIns = auth()->user()->checkIns()->get();
+        $nextCheckInDate = auth()->user()->fresh()->next_check_in_at;
 
-        return view('livewire.budget.check-ins', compact('checkIns'));
+        return view('livewire.budget.check-ins', compact('checkIns', 'nextCheckInDate'));
     }
 }
