@@ -11,6 +11,7 @@ enum WorkoutType: string
     case Run = 'run';
     case Yoga = 'yoga';
     case Kettlebell = 'kettlebell';
+    case Bands = 'bands';
     case FoamRolling = 'foam_rolling';
     case Mobility = 'mobility';
     case Custom = 'custom';
@@ -25,6 +26,7 @@ enum WorkoutType: string
             WorkoutType::Run => 'Run',
             WorkoutType::Yoga => 'Yoga',
             WorkoutType::Kettlebell => 'Kettlebell',
+            WorkoutType::Bands => 'Bands',
             WorkoutType::FoamRolling => 'Foam Rolling',
             WorkoutType::Mobility => 'Mobility',
             WorkoutType::Custom => 'Custom',
