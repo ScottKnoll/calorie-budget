@@ -414,8 +414,8 @@
                                             </flux:field>
 
                                             <flux:field>
-                                                <flux:label>Focus for Next Week</flux:label>
-                                                <flux:textarea wire:model="coachFocusNextWeek" rows="3" placeholder="Key priorities and intentions for the coming week..." maxlength="3000" />
+                                                <flux:label>Focus Before Next Check-In</flux:label>
+                                                <flux:textarea wire:model="coachFocusNextWeek" rows="3" placeholder="Key priorities and intentions before the next check-in..." maxlength="3000" />
                                                 <flux:error name="coachFocusNextWeek" />
                                             </flux:field>
 
@@ -452,7 +452,7 @@
                                                     ['value' => $checkIn->coach_nutrition, 'label' => 'Nutrition'],
                                                     ['value' => $checkIn->coach_habits, 'label' => 'Habits'],
                                                     ['value' => $checkIn->coach_general, 'label' => 'General'],
-                                                    ['value' => $checkIn->coach_focus_next_week, 'label' => 'Focus for Next Week'],
+                                                    ['value' => $checkIn->coach_focus_next_week, 'label' => 'Focus Before Next Check-In'],
                                                     ['value' => $checkIn->coach_other, 'label' => 'Other'],
                                                 ] as $note)
                                                     @if ($note['value'])
