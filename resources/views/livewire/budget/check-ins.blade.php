@@ -116,6 +116,7 @@
                                         ['value' => $checkIn->coach_habits, 'label' => 'Habits'],
                                         ['value' => $checkIn->coach_general, 'label' => 'General'],
                                         ['value' => $checkIn->coach_focus_next_week, 'label' => 'Focus for Next Week'],
+                                        ['value' => $checkIn->coach_other, 'label' => 'Other'],
                                     ] as $note)
                                         @if ($note['value'])
                                             <div>

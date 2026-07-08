@@ -356,6 +356,20 @@ it('shows Submit Check-In button for a new check-in', function () {
 
 // --- Client sees coach notes ---
 
+it('allows a coach to save other notes on a check-in', function () {
+    $coach = User::factory()->asCoach()->create();
+    $client = User::factory()->asClient()->create();
+    $checkIn = CheckInModel::factory()->create(['user_id' => $client->id]);
+
+    Livewire::actingAs($coach)
+        ->test(ClientProfile::class, ['client' => $client])
+        ->call('startEditingNotes', $checkIn->id)
+        ->set('coachOther', 'Some miscellaneous notes here.')
+        ->call('saveNotes');
+
+    expect($checkIn->fresh()->coach_other)->toBe('Some miscellaneous notes here.');
+});
+
 it('shows coach notes on the client check-ins page', function () {
     $client = User::factory()->asClient()->create();
 

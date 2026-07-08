@@ -36,6 +36,8 @@ class ClientProfile extends Component
 
     public string $coachFocusNextWeek = '';
 
+    public string $coachOther = '';
+
     public bool $editingCalorieProfile = false;
 
     public int $editCalorieTarget = 0;
@@ -99,6 +101,7 @@ class ClientProfile extends Component
         $this->coachHabits = $checkIn->coach_habits ?? '';
         $this->coachGeneral = $checkIn->coach_general ?? '';
         $this->coachFocusNextWeek = $checkIn->coach_focus_next_week ?? '';
+        $this->coachOther = $checkIn->coach_other ?? '';
     }
 
     public function cancelEditingNotes(): void
@@ -109,6 +112,7 @@ class ClientProfile extends Component
         $this->coachHabits = '';
         $this->coachGeneral = '';
         $this->coachFocusNextWeek = '';
+        $this->coachOther = '';
     }
 
     public function saveNotes(): void
@@ -119,6 +123,7 @@ class ClientProfile extends Component
             'coachHabits' => ['nullable', 'string', 'max:3000'],
             'coachGeneral' => ['nullable', 'string', 'max:3000'],
             'coachFocusNextWeek' => ['nullable', 'string', 'max:3000'],
+            'coachOther' => ['nullable', 'string', 'max:3000'],
         ]);
 
         $this->resolveCheckIn($this->editingCheckInId)->update([
@@ -127,6 +132,7 @@ class ClientProfile extends Component
             'coach_habits' => $validated['coachHabits'] ?: null,
             'coach_general' => $validated['coachGeneral'] ?: null,
             'coach_focus_next_week' => $validated['coachFocusNextWeek'] ?: null,
+            'coach_other' => $validated['coachOther'] ?: null,
         ]);
 
         $this->cancelEditingNotes();

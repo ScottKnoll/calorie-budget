@@ -418,6 +418,17 @@
                                                 <flux:textarea wire:model="coachFocusNextWeek" rows="3" placeholder="Key priorities and intentions for the coming week..." maxlength="3000" />
                                                 <flux:error name="coachFocusNextWeek" />
                                             </flux:field>
+
+                                            <div x-data="{ showOther: {{ $coachOther ? 'true' : 'false' }} }">
+                                                <template x-if="!showOther">
+                                                    <button type="button" @click="showOther = true" class="text-sm text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300">+ Add other notes</button>
+                                                </template>
+                                                <flux:field x-show="showOther">
+                                                    <flux:label>Other</flux:label>
+                                                    <flux:textarea wire:model="coachOther" rows="3" placeholder="Anything else worth noting..." maxlength="3000" />
+                                                    <flux:error name="coachOther" />
+                                                </flux:field>
+                                            </div>
                                         </div>
 
                                         <div class="mt-4 flex items-center justify-end gap-3">
@@ -442,6 +453,7 @@
                                                     ['value' => $checkIn->coach_habits, 'label' => 'Habits'],
                                                     ['value' => $checkIn->coach_general, 'label' => 'General'],
                                                     ['value' => $checkIn->coach_focus_next_week, 'label' => 'Focus for Next Week'],
+                                                    ['value' => $checkIn->coach_other, 'label' => 'Other'],
                                                 ] as $note)
                                                     @if ($note['value'])
                                                         <div>
