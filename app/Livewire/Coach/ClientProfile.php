@@ -6,7 +6,6 @@ use App\Concerns\IntakeLabelOptions;
 use App\Enums\MacroPreset;
 use App\Models\CheckIn;
 use App\Models\User;
-use App\Models\WeightEntry;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
@@ -237,9 +236,9 @@ class ClientProfile extends Component
     }
 
     #[Computed]
-    public function latestWeightEntry(): ?WeightEntry
+    public function latestCheckIn(): ?CheckIn
     {
-        return $this->client->weightEntries()->latest('date')->first();
+        return $this->client->checkIns()->first();
     }
 
     public function macroPresetOptions(): array

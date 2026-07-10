@@ -63,6 +63,7 @@
                     <div>
                         <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Starting Weight</flux:text>
                         <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ $profile->weight_lbs }} <span class="text-sm font-normal text-zinc-400">lbs</span></p>
+                        <flux:text class="text-xs text-zinc-400">{{ $profile->created_at->format('M j, Y') }}</flux:text>
                     </div>
                     @if ($profile->goal_weight_lbs)
                         <div>
@@ -70,11 +71,11 @@
                             <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ $profile->goal_weight_lbs }} <span class="text-sm font-normal text-zinc-400">lbs</span></p>
                         </div>
                     @endif
-                    @if ($this->latestWeightEntry)
+                    @if ($this->latestCheckIn)
                         <div>
                             <flux:text class="text-xs text-zinc-500 dark:text-zinc-400">Latest Weight</flux:text>
-                            <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ number_format($this->latestWeightEntry->weight_lbs, 1) }} <span class="text-sm font-normal text-zinc-400">lbs</span></p>
-                            <flux:text class="text-xs text-zinc-400">{{ $this->latestWeightEntry->date->format('M j, Y') }}</flux:text>
+                            <p class="mt-0.5 text-xl font-bold tabular-nums text-zinc-900 dark:text-white">{{ number_format($this->latestCheckIn->weight, 1) }} <span class="text-sm font-normal text-zinc-400">lbs</span></p>
+                            <flux:text class="text-xs text-zinc-400">{{ $this->latestCheckIn->created_at->format('M j, Y') }}</flux:text>
                         </div>
                     @endif
                 </div>
