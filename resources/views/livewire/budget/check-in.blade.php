@@ -7,7 +7,7 @@
     <form wire:submit="submit" class="space-y-6">
 
         <flux:field>
-            <flux:label>Current weight (lbs)</flux:label>
+            <flux:label>Current weight (lbs) <flux:badge size="sm" color="zinc" class="ml-1">Optional</flux:badge></flux:label>
             <flux:input wire:model="weight" type="number" step="0.1" min="50" max="999" placeholder="e.g. 185.5" />
             <flux:error name="weight" />
         </flux:field>

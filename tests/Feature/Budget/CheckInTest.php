@@ -5,6 +5,7 @@ use App\Livewire\Budget\CheckIns;
 use App\Livewire\Coach\ClientProfile;
 use App\Models\CheckIn as CheckInModel;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 
@@ -95,14 +96,22 @@ it('saves need_help when provided', function () {
 
 // --- Validation ---
 
-it('requires weight', function () {
+it('allows submitting without weight', function () {
     $client = User::factory()->asClient()->create();
 
     Livewire::actingAs($client)
         ->test(CheckIn::class)
         ->set('weight', '')
+        ->set('week_feeling', 'Good week.')
+        ->set('went_well', 'Stayed consistent.')
+        ->set('felt_hardest', 'Weekend meals.')
+        ->set('hunger_energy_sleep', 'All good.')
+        ->set('activity_consistency', '3 workouts.')
         ->call('submit')
-        ->assertHasErrors(['weight']);
+        ->assertHasNoErrors(['weight'])
+        ->assertRedirect(route('budget.check-ins'));
+
+    expect(CheckInModel::where('user_id', $client->id)->first()->weight)->toBeNull();
 });
 
 it('requires weight to be numeric', function () {
@@ -391,4 +400,36 @@ it('shows awaiting feedback when coach has not responded', function () {
     Livewire::actingAs($client)
         ->test(CheckIns::class)
         ->assertSee('Awaiting coach feedback');
+});
+
+it('shows two weeks countdown for a check-in date fourteen calendar days away', function () {
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-09-16 20:42:00'));
+
+    $client = User::factory()->asClient()->create([
+        'next_check_in_at' => '2026-09-30 00:00:00',
+    ]);
+
+    Livewire::actingAs($client)
+        ->test(CheckIns::class)
+        ->assertSee('in 2 weeks');
+});
+
+it('allows a coach to schedule a next check-in date', function () {
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-09-16 20:42:00'));
+
+    $coach = User::factory()->asCoach()->create();
+    $client = User::factory()->asClient()->create();
+
+    Livewire::actingAs($coach)
+        ->test(ClientProfile::class, ['client' => $client])
+        ->call('startEditingNextCheckIn')
+        ->set('nextCheckInInput', '2026-09-30T00:00')
+        ->call('saveNextCheckInDate')
+        ->assertHasNoErrors();
+
+    expect($client->fresh()->next_check_in_at?->toDateTimeString())->toBe('2026-09-30 00:00:00');
+
+    Livewire::actingAs($coach)
+        ->test(ClientProfile::class, ['client' => $client->fresh()])
+        ->assertSee('in 2 weeks');
 });

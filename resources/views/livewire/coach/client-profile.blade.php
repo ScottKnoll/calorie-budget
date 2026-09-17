@@ -304,9 +304,9 @@
                                 <flux:text class="mt-0.5 text-xs">
                                     @if ($nextCheckInDate)
                                         @if ($isDue)
-                                            Was due {{ $nextCheckInDate->format('F j \a\t g:i A') }} &middot; {{ $nextCheckInDate->diffForHumans() }}
+                                            Was due {{ $nextCheckInDate->format('F j \a\t g:i A') }} &middot; {{ \App\Support\ScheduleCountdown::for($nextCheckInDate) }}
                                         @else
-                                            {{ $nextCheckInDate->format('F j, Y \a\t g:i A') }} &middot; {{ $nextCheckInDate->diffForHumans() }}
+                                            {{ $nextCheckInDate->format('F j, Y \a\t g:i A') }} &middot; {{ \App\Support\ScheduleCountdown::for($nextCheckInDate) }}
                                         @endif
                                     @else
                                         Not scheduled yet
@@ -335,7 +335,9 @@
                             <div class="p-5">
                                 <div class="mb-4 flex items-center justify-between">
                                     <flux:heading size="sm">{{ $checkIn->created_at->format('F j, Y') }}</flux:heading>
-                                    <flux:badge color="zinc">{{ number_format($checkIn->weight, 1) }} lbs</flux:badge>
+                                    @if ($checkIn->weight !== null)
+                                        <flux:badge color="zinc">{{ number_format($checkIn->weight, 1) }} lbs</flux:badge>
+                                    @endif
                                 </div>
 
                                 <div class="space-y-4">

@@ -41,7 +41,7 @@ class CheckIn extends Component
             }
 
             $this->checkInId = $checkIn->id;
-            $this->weight = (string) $checkIn->weight;
+            $this->weight = $checkIn->weight !== null ? (string) $checkIn->weight : '';
             $this->week_feeling = $checkIn->week_feeling;
             $this->went_well = $checkIn->went_well;
             $this->felt_hardest = $checkIn->felt_hardest;
@@ -60,7 +60,7 @@ class CheckIn extends Component
     public function submit(): void
     {
         $validated = $this->validate([
-            'weight' => ['required', 'numeric', 'min:50', 'max:999'],
+            'weight' => ['nullable', 'numeric', 'min:50', 'max:999'],
             'week_feeling' => ['required', 'string', 'max:2000'],
             'went_well' => ['required', 'string', 'max:2000'],
             'felt_hardest' => ['required', 'string', 'max:2000'],
@@ -68,6 +68,10 @@ class CheckIn extends Component
             'activity_consistency' => ['required', 'string', 'max:2000'],
             'need_help' => ['nullable', 'string', 'max:2000'],
         ]);
+
+        if (($validated['weight'] ?? '') === '') {
+            $validated['weight'] = null;
+        }
 
         if (($validated['need_help'] ?? '') === '') {
             $validated['need_help'] = null;
